@@ -1,0 +1,325 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+/* ---------------------- BASE LAYOUT ---------------------- */
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #f4f4f4;
+  overflow: hidden;
+}
+
+.video-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+  filter: blur(4px);
+  transform: scale(1.1);
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: -1;
+}
+
+/* ---------------------- MAIN CONTAINER ---------------------- */
+
+.container {
+  position: relative;
+  width: 500px;
+  height: 550px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+/* ---------------------- WELCOME BOX ---------------------- */
+
+.welcome-box {
+  width: 100%;
+  height: 100%;
+  background: #E00024;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  text-align: center;
+  padding: 20px;
+}
+
+.welcome-box .logo {
+  width: 600px;
+  height: auto;
+  margin-bottom: 15px;
+}
+
+#ic_logo {
+  height: 200px;
+  width: 200px;
+}
+
+/* ---------------------- LOGIN BOX ---------------------- */
+
+.login-box {
+  position: absolute;
+  background: #fff;
+  width: 400px;
+  height: 470px;
+  padding: 35px;
+  margin-left: -380px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  left: 30px;
+}
+
+.login-box h3 {
+  text-align: center;
+  margin-bottom: 40px;
+  color: #E00024;
+}
+
+.input-group {
+  display: flex;
+  background: #F1F1F1;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 20px;
+  height: 50px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.input-group i {
+  margin-right: 10px;
+  color: gray;
+}
+
+.input-group input {
+  border: none;
+  outline: none;
+  background: transparent;
+  flex: 1;
+  font-size: 14px;
+}
+
+button.toggle-password {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.login-btn {
+  width: 50%;
+  background: #E00024;
+  color: white;
+  border: none;
+  padding: 10px;
+  margin-left: 80px;
+  margin-top: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  border-radius: 10px;
+}
+
+.login-btn:hover {
+  background: #E87F2E;
+}
+
+.forgot-wrap {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.forgot-link {
+  color: #0A1F7C;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.forgot-link:hover {
+  color: #00A9FF;
+}
+
+/* ---------------------- MODALS ---------------------- */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 25px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+.modal h4 {
+  margin-bottom: 15px;
+  color: #E00024;
+}
+
+.modal input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.modal button {
+  padding: 10px 20px;
+  margin-top: 5px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.close-btn {
+  background: #ccc;
+  margin-right: 10px;
+}
+
+.send-btn {
+  background: #E00024;
+  color: #fff;
+}
+
+.send-btn[disabled] {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+#resetMsg {
+  margin-top: 8px;
+  font-size: 14px;
+  min-height: 18px;
+}
+
+/* FIXED MODALS FOR VERIFY + FORGOT */
+#forgotModal,
+#verifyModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+#verifyModal .modal-content,
+#forgotModal .modal-content {
+  background: #fff;
+  padding: 25px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* ---------------------- RESPONSIVE ---------------------- */
+
+@media (max-width: 992px) {
+  body {
+    flex-direction: column;
+    overflow: auto;
+    height: auto;
+    padding: 20px 0;
+  }
+
+  .container {
+    flex-direction: column;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    height: auto;
+    align-items: center;
+  }
+
+  .welcome-box {
+    width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+    border-radius: 15px;
+  }
+
+  .welcome-box .logo {
+    width: 80%;
+    max-width: 280px;
+  }
+
+  .login-box {
+    position: relative;
+    width: 90%;
+    max-width: 400px;
+    height: auto;
+    margin: 0 auto;
+    left: 0;
+    padding: 25px 20px;
+  }
+
+  .login-btn {
+    width: 100%;
+    margin: 20px 0 0 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .welcome-box {
+    padding: 15px;
+  }
+
+  .welcome-box h2 {
+    font-size: 1.2rem;
+  }
+
+  .login-box {
+    padding: 20px 15px;
+  }
+
+  .input-group {
+    height: 45px;
+  }
+
+  .input-group input {
+    font-size: 13px;
+  }
+
+  .login-btn {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .forgot-link {
+    font-size: 13px;
+  }
+}

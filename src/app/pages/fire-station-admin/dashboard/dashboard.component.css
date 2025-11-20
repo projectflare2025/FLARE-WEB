@@ -1,0 +1,40 @@
+.dashboard-container {
+  padding: 24px;
+}
+
+h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+}
+
+.card h3 {
+  font-size: 18px;
+  margin: 0 0 10px;
+}
+
+.card p {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0;
+  color: #3f51b5;
+}

@@ -1,0 +1,58 @@
+  <video autoplay muted loop playsinline class="video-bg">
+    <source src="assets/videos/background.mp4" type="video/mp4" />
+  </video>
+
+  <div class="overlay"></div>
+
+  <div class="container">
+    <div class="welcome-box">
+      <img id="ic_logo" src="images/ic_logo.png" alt="Logo" class="logo" />
+      <h2>ADMIN DASHBOARD</h2>
+    </div>
+
+    <div class="login-box">
+      <h3>Login Please</h3>
+
+      <div *ngIf="errorMessage" style="color:red;text-align:center;">
+        {{ errorMessage }}
+      </div>
+
+      <form (ngSubmit)="login()">
+        <div class="input-group">
+          <i class="fa fa-envelope"></i>
+          <input type="email" [(ngModel)]="email" name="email" placeholder="Input your Email" required />
+        </div>
+
+        <div class="input-group">
+          <i class="fa fa-lock"></i>
+          <input type="password" [(ngModel)]="password" name="password" placeholder="Input your password" [type]="showPassword ? 'text' : 'password'" required />
+          <button type="button" class="toggle-password" (click)="togglePassword()">
+            <i [class]="showPassword ? 'bi bi-eye' : 'bi bi-eye-slash'"></i>
+          </button>
+        </div>
+
+        <button type="submit" class="login-btn">LOG IN</button>
+
+        <div class="forgot-wrap">
+          <span class="forgot-link" (click)="openForgot()">Forgot password?</span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div class="modal" [style.display]="forgotOpen ? 'flex' : 'none'">
+    <div class="modal-content">
+      <h4>Reset Password</h4>
+      <input type="email" [(ngModel)]="forgotEmail" placeholder="Enter your registered email" />
+
+      <div>
+        <button class="close-btn" (click)="closeForgot()">Cancel</button>
+        <button class="send-btn" [disabled]="resetLoading" (click)="sendResetLink()">
+          {{ resetLoading ? 'Sending...' : 'Send link' }}
+        </button>
+      </div>
+
+      <p id="resetMsg" [style.color]="resetColor">{{ resetMsg }}</p>
+    </div>
+  </div>

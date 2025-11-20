@@ -1,0 +1,59 @@
+.incident-container {
+  padding: 20px;
+}
+
+.filter-box {
+  margin-bottom: 15px;
+}
+
+.filter-box select {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.table-card {
+  background: white;
+  padding: 20px;
+  border-radius: 6px;
+  width: 100%;
+  border: 1px solid #e3e3e3;
+}
+
+h3 {
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  background: #f8f8f8;
+  padding: 10px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 1px solid #ddd;
+}
+
+td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.filters input,
+.filters select {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.no-data {
+  text-align: center;
+  color: #777;
+  padding: 25px;
+  font-style: italic;
+}

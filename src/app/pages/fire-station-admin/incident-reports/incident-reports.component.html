@@ -1,0 +1,61 @@
+<div class="incident-container">
+  <h2>Incident Report Management</h2>
+
+  <!-- Filter Dropdown -->
+  <div class="filter-box">
+    <select>
+      <option>All Reports</option>
+      <option>Fire Incidents</option>
+      <option>Medical Emergencies</option>
+      <option>Rescue Operations</option>
+    </select>
+  </div>
+
+  <!-- Table Card -->
+  <div class="table-card">
+    <h3>All Reports</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Type</th>
+          <th>Location</th>
+          <th>Date & Time</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+
+        <!-- Filter Row -->
+        <tr class="filters">
+          <td></td>
+          <td><input type="text" placeholder="Search Type..." /></td>
+          <td><input type="text" placeholder="Search Location..." /></td>
+          <td>
+            <select>
+              <option>All</option>
+              <option>Today</option>
+              <option>This Week</option>
+              <option>This Month</option>
+            </select>
+          </td>
+          <td>
+            <select>
+              <option>All</option>
+              <option>Pending</option>
+              <option>Ongoing</option>
+              <option>Completed</option>
+            </select>
+          </td>
+          <td></td>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td colspan="6" class="no-data">No reports found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
