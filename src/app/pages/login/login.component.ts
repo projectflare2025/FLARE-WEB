@@ -16,8 +16,6 @@ export class LoginComponent {
   email = '';
   password = '';
   errorMessage = '';
-
-  // Password toggle
   showPassword = false;
 
   // Forgot password modal
@@ -27,50 +25,98 @@ export class LoginComponent {
   resetMsg = '';
   resetColor = 'red';
 
-  constructor(private auth: AuthService, private router: Router) {
+  // Email verification
+  showVerifyModal = false;
+  verifyMsg = '';
+  verifyColor = 'red';
+  resendDisabled = false;
+  countdown = 0;
+  countdownInterval: any;
 
-    // 🚀 Prevent back button going to login page
-    if (this.auth.isLoggedIn()) {
-      this.router.navigate(['/app/dashboard'], { replaceUrl: true });
-    }
+  constructor(private auth: AuthService, private router: Router) {
+   if (this.auth.isLoggedIn()) {
+  const role = sessionStorage.getItem('accountType');
+
+  if (role === 'admin') {
+    this.router.navigate(['/admin-app/admin-dashboard'], { replaceUrl: true });
+  } else if (role === 'firestation') {
+    this.router.navigate(['/app/dashboard'], { replaceUrl: true });
+  }
+}
+
   }
 
-  // LOGIN
+  /** LOGIN BUTTON */
   async login() {
     const res = await this.auth.login(this.email, this.password);
 
     if (!res.success) {
+      if (res.message.includes('not verified')) {
+        this.showVerifyModal = true;
+      }
       this.errorMessage = res.message;
       return;
     }
 
-    this.router.navigate(['/app /dashboard'], { replaceUrl: true });
+    const accountType = res.accountType;
+
+    if (accountType === 'admin') {
+      this.router.navigate(['/admin-app/admin-dashboard'], { replaceUrl: true });
+      return;
+    }
+
+    if (accountType === 'firestation') {
+      this.router.navigate(['/app/dashboard'], { replaceUrl: true });
+      return;
+    }
+
+    this.errorMessage = 'Unknown account type.';
   }
 
-  // Show/Hide password
-  togglePassword() {
-    this.showPassword = !this.showPassword;
+  /** RESEND EMAIL VERIFICATION */
+  async resendVerify() {
+    const result = await this.auth.sendVerificationEmail();
+    this.verifyMsg = result.message;
+    this.verifyColor = result.success ? 'green' : 'red';
+
+    if (result.success) {
+      this.startCountdown(100);
+    }
   }
 
-  // Forgot modal open
+  startCountdown(seconds: number) {
+    this.resendDisabled = true;
+    this.countdown = seconds;
+
+    this.countdownInterval = setInterval(() => {
+      this.countdown--;
+
+      if (this.countdown <= 0) {
+        clearInterval(this.countdownInterval);
+        this.resendDisabled = false;
+      }
+    }, 1000);
+  }
+
+  /** FORGOT PASSWORD MODAL */
   openForgot() {
     this.forgotOpen = true;
   }
 
-  // Forgot modal close
   closeForgot() {
     this.forgotOpen = false;
     this.resetMsg = '';
   }
 
-  // SEND RESET LINK
   async sendResetLink() {
     this.resetLoading = true;
-
     const result = await this.auth.sendResetLink(this.forgotEmail);
-
     this.resetMsg = result.message;
     this.resetColor = result.success ? 'green' : 'red';
     this.resetLoading = false;
+  }
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
   }
 }

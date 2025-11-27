@@ -1,5 +1,5 @@
   <video autoplay muted loop playsinline class="video-bg">
-    <source src="assets/videos/background.mp4" type="video/mp4" />
+    <source src="/videos/background.mp4" type="video/mp4" />
   </video>
 
   <div class="overlay"></div>
@@ -56,3 +56,24 @@
       <p id="resetMsg" [style.color]="resetColor">{{ resetMsg }}</p>
     </div>
   </div>
+
+<div class="modal" [style.display]="showVerifyModal ? 'flex' : 'none'">
+  <div class="modal-content">
+    <h4>Email Not Verified</h4>
+    <p>Please verify your email to continue.</p>
+
+    <!-- Button with countdown -->
+    <button class="send-btn"
+            [disabled]="resendDisabled"
+            (click)="resendVerify()">
+
+      <!-- When countdown active -->
+      {{ resendDisabled ? 'Resend in ' + countdown + 's' : 'Resend Verification Email' }}
+    </button>
+
+    <button class="close-btn" (click)="showVerifyModal = false">Close</button>
+
+    <p [style.color]="verifyColor">{{ verifyMsg }}</p>
+  </div>
+</div>
+

@@ -1,0 +1,162 @@
+.layout-container {
+  display: flex;
+  height: 100vh;
+}
+
+/* Sidebar Base */
+.sidebar {
+  width: 260px;
+  background: #E00024; /* Fire red */
+  color: #fff;
+  padding: 20px 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+
+.logo-section {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.logo-circle {
+  width: 120px;       /* adjust size */
+  height: 120px;
+  background: #ffffff; /* background color of circle */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 0 auto 10px auto;
+  box-shadow: 0 0 8px rgba(0,0,0,0.15); /* optional: nice glow */
+}
+
+.logo-img {
+  width: 120px;       /* adjust size */
+  height: 120px;
+}
+
+
+/* Navigation */
+.nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-list li {
+  margin: 8px 0;
+}
+
+.nav-list a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  color: #f1f1f1;
+  text-decoration: none;
+  padding: 12px 14px;
+  border-radius: 8px;
+  transition: 0.2s;
+}
+
+/* Hover */
+.nav-list a:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Active Link */
+.nav-list a.active {
+  background: #ffcc80;
+  color: #222;
+  font-weight: bold;
+}
+
+/* Logout button */
+.logout-btn {
+  margin-top: auto;
+  padding: 12px;
+  border: none;
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: 0.2s;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Content */
+.content {
+  flex: 1;
+  padding: 20px;
+  background: #f5f5f5;
+}
+
+
+/* BACKDROP */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5000;
+}
+
+/* MODAL BOX */
+.modal-box {
+  width: 380px;
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  text-align: center;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+/* LOGO */
+.modal-logo {
+  width: 80px;
+  margin-bottom: 15px;
+}
+
+/* BUTTONS */
+.modal-actions {
+  margin-top: 25px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.btn-cancel {
+  background: #ffa726;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+}
+
+.btn-logout {
+  background: #d32f2f;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+}
+
+/* ANIMATION */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+

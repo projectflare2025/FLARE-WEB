@@ -1,20 +1,107 @@
-<div class="dashboard-container">
-  <h2>Admin Dashboard Overview</h2>
+<div class="dashboard-page">
 
-  <div class="cards">
-    <div class="card">
-      <h3>Total Fire Stations</h3>
-      <p>120</p>
-    </div>
+  <!-- TOP HEADER SECTION -->
+  <div class="dashboard-header">
+    <h2>Projects</h2>
 
-    <div class="card">
-      <h3>Active Stations</h3>
-      <p>12</p>
-    </div>
-
-    <div class="card">
-      <h3>Pending Alerts</h3>
-      <p>4</p>
-    </div>
+    <button class="create-btn">Create New Project</button>
   </div>
+
+  <!-- STAT CARDS -->
+  <div class="stats-container">
+
+    <div class="stat-card">
+      <h1>18</h1>
+      <p>Projects</p>
+      <span>2 Completed</span>
+    </div>
+
+    <div class="stat-card">
+      <h1>132</h1>
+      <p>Active Tasks</p>
+      <span>28 Completed</span>
+    </div>
+
+    <div class="stat-card">
+      <h1>12</h1>
+      <p>Teams</p>
+      <span>1 Completed</span>
+    </div>
+
+    <div class="stat-card">
+      <h1>76%</h1>
+      <p>Productivity</p>
+      <span>5% Completed</span>
+    </div>
+
+  </div>
+
+  <!-- ACTIVE PROJECT LIST -->
+  <div class="active-card">
+    <h3>Active Projects</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Project Name</th>
+          <th>Hours</th>
+          <th>Priority</th>
+          <th>Members</th>
+          <th>Progress</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td><i class="icon">📦</i> Dropbox Design System</td>
+          <td>34</td>
+          <td><span class="tag normal">Normal</span></td>
+          <td class="members">
+            <img src="https://i.pravatar.cc/40?img=1"/>
+            <img src="https://i.pravatar.cc/40?img=2"/>
+            <img src="https://i.pravatar.cc/40?img=3"/>
+          </td>
+          <td>
+            <div class="progress"><div style="width: 15%;"></div></div>
+            <span class="percent">15%</span>
+          </td>
+        </tr>
+
+        <tr>
+          <td><i class="icon">💬</i> Slack Team UI Design</td>
+          <td>47</td>
+          <td><span class="tag normal">Normal</span></td>
+          <td class="members">
+            <img src="https://i.pravatar.cc/40?img=4"/>
+            <img src="https://i.pravatar.cc/40?img=5"/>
+            <img src="https://i.pravatar.cc/40?img=6"/>
+          </td>
+          <td>
+            <div class="progress"><div style="width: 35%;"></div></div>
+            <span class="percent">35%</span>
+          </td>
+        </tr>
+
+        <tr>
+          <td><i class="icon">🚀</i> GitHub Satellite</td>
+          <td>120</td>
+          <td><span class="tag low">Low</span></td>
+          <td class="members">
+            <img src="https://i.pravatar.cc/40?img=7"/>
+            <img src="https://i.pravatar.cc/40?img=8"/>
+            <img src="https://i.pravatar.cc/40?img=9"/>
+          </td>
+          <td>
+            <div class="progress"><div style="width: 75%;"></div></div>
+            <span class="percent">75%</span>
+          </td>
+        </tr>
+
+
+
+      </tbody>
+    </table>
+
+  </div>
+
 </div>

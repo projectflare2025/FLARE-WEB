@@ -1,50 +1,56 @@
 import { Injectable } from '@angular/core';
-import { auth, db } from '../app.config';
-import { ref, push, set, update, remove, onValue } from 'firebase/database';
+import { Auth } from '@angular/fire/auth';
+import { Database, ref, push, set, update, remove, onValue } from '@angular/fire/database';
 import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class FirebaseService {
 
+  constructor(
+    private auth: Auth,
+    private db: Database
+  ) {}
+
   private userPath(path = '') {
-    const uid = auth.currentUser?.uid;
+    const uid = this.auth.currentUser?.uid;
     if (!uid) throw new Error('User not authenticated');
+
     return `users/${uid}/${path}`;
   }
 
   addData(subPath: string, data: any) {
-    const p = this.userPath(subPath);
-    const newRef = push(ref(db, p));
+    const fullPath = this.userPath(subPath);
+    const newRef = push(ref(this.db, fullPath));
     return set(newRef, data);
   }
 
   setData(subPath: string, data: any) {
-    const p = this.userPath(subPath);
-    return set(ref(db, p), data);
+    const fullPath = this.userPath(subPath);
+    return set(ref(this.db, fullPath), data);
   }
 
   updateData(subPath: string, data: any) {
-    const p = this.userPath(subPath);
-    return update(ref(db, p), data);
+    const fullPath = this.userPath(subPath);
+    return update(ref(this.db, fullPath), data);
   }
 
   deleteData(subPath: string) {
-    const p = this.userPath(subPath);
-    return remove(ref(db, p));
+    const fullPath = this.userPath(subPath);
+    return remove(ref(this.db, fullPath));
   }
 
   getRealtime(subPath: string): Observable<any> {
     return new Observable(observer => {
-      const p = this.userPath(subPath);
-      const dbRef = ref(db, p);
+      const fullPath = this.userPath(subPath);
+      const dbRef = ref(this.db, fullPath);
 
-      const unsub = onValue(
+      const unsubscribe = onValue(
         dbRef,
         snap => observer.next(snap.val()),
         err => observer.error(err)
       );
 
-      return () => unsub();
+      return () => unsubscribe();
     });
   }
 }

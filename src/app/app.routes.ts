@@ -9,6 +9,9 @@ import { IncidentReportsComponent } from './pages/fire-station-admin/incident-re
 import { SettingsComponent } from './pages/fire-station-admin/settings/settings.component';
 import { AdminLayoutComponent } from './pages/fire-station-root-admin/admin-layout/admin-layout.component';
 import { AdminDashboardComponent } from './pages/fire-station-root-admin/admin-dashboard/admin-dashboard.component';
+import { AdminManageStationsComponent } from './pages/fire-station-root-admin/admin-manage-stations/admin-manage-stations.component';
+import { AdminSettingsComponent } from './pages/fire-station-root-admin/admin-settings/admin-settings.component';
+import { AdminManageDriversComponent } from './pages/fire-station-root-admin/admin-manage-drivers/admin-manage-drivers.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -33,7 +36,9 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: 'admin-dashboard', component: AdminDashboardComponent },
-      { path: 'admin-settings', component: SettingsComponent },                 // 👈 ADDED
+      { path: 'admin-manage-stations', component: AdminManageStationsComponent },
+       { path: 'admin-manage-drivers', component: AdminManageDriversComponent },
+      { path: 'admin-settings', component: AdminSettingsComponent },                 // 👈 ADDED
       { path: '', redirectTo: 'admin-dashboard', pathMatch: 'full' }
     ]
   },

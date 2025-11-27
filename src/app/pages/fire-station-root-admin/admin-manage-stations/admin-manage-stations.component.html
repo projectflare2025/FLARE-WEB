@@ -1,0 +1,112 @@
+<div class="page-container">
+
+  <!-- HEADER -->
+  <div class="header-card">
+    <h2>Fire Station Management</h2>
+    <button class="add-btn" (click)="openModal()">Add Station</button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-card">
+    <div class="table-title">Station List</div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Station Name</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let station of stationList; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ station.stationName }}</td>
+          <td>{{ station.role }}</td>
+          <td>{{ station.status }}</td>
+          <td>
+            <button class="action-btn">View</button>
+          </td>
+        </tr>
+      </tbody>
+
+    </table>
+  </div>
+</div>
+
+
+<!-- ==================================== -->
+<!--          ADD STATION MODAL           -->
+<!-- ==================================== -->
+
+<div class="modal-backdrop" *ngIf="showModal">
+  <div class="modal-box">
+
+    <div class="modal-title">Add Fire Station</div>
+
+    <div class="modal-content">
+
+      <!-- LEFT FORM -->
+      <div class="left-form">
+
+        <label>Station Name</label>
+        <input [(ngModel)]="stationName" type="text">
+
+       <label>Role</label>
+<select [(ngModel)]="role" (change)="setParentStationName()">
+  <option value="">Select role</option>
+  <option value="Central">Central</option>
+  <option value="SubStation">SubStation</option>
+</select>
+
+<!-- PARENT CENTRAL STATION -->
+<div class="form-group" *ngIf="role === 'SubStation'">
+  <label>Parent Central Station</label>
+  <select
+    class="form-control"
+    [(ngModel)]="parentStationId"
+    (change)="setParentStationName()"
+  >
+    <option value="">Select Central Station</option>
+    <option *ngFor="let c of centralStations" [value]="c.id">
+      {{ c.stationName }}
+    </option>
+  </select>
+</div>
+
+
+        <label>Contact</label>
+        <input [(ngModel)]="contact" type="text">
+
+        <label>Email</label>
+        <input [(ngModel)]="email" type="email">
+
+        <label>Password</label>
+        <input [(ngModel)]="password" type="password">
+
+        <label>Status</label>
+        <select [(ngModel)]="status">
+          <option>Active</option>
+          <option>Inactive</option>
+        </select>
+
+      </div>
+
+      <!-- MAP -->
+      <div class="map-box">
+        <h3>Select Location on Map</h3>
+        <div id="map" class="map-container"></div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="cancel-btn" (click)="closeModal()">Cancel</button>
+      <button class="save-btn" (click)="saveStation()">Save Station</button>
+    </div>
+
+  </div>
+</div>

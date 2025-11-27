@@ -1,20 +1,24 @@
+<!-- =========================
+     INCIDENT REPORTS PAGE
+========================= -->
 <div class="incident-container">
   <h2>Incident Report Management</h2>
 
   <!-- Filter Dropdown -->
   <div class="filter-box">
-    <select>
+    <select [(ngModel)]="selectedReportType" (change)="filterReports()">
       <option>All Reports</option>
-      <option>Fire Incidents</option>
-      <option>Medical Emergencies</option>
-      <option>Rescue Operations</option>
+      <option>Fire Report</option>
+      <option>Emergency Medical Services Report</option>
+      <option>Other Emergency Report</option>
+      <option>Sms Report</option>
     </select>
   </div>
+
 
   <!-- Table Card -->
   <div class="table-card">
     <h3>All Reports</h3>
-
     <table>
       <thead>
         <tr>
@@ -52,10 +56,254 @@
       </thead>
 
       <tbody>
-        <tr>
+        <tr *ngIf="loading">
+          <td colspan="6" class="no-data">Loading reports...</td>
+        </tr>
+
+        <tr *ngIf="!loading && reports?.length === 0">
           <td colspan="6" class="no-data">No reports found.</td>
+        </tr>
+
+        <tr *ngFor="let r of reports; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ r.type }}</td>
+          <td>{{ r.exactLocation }}</td>
+          <td>{{ r.date }} {{ r.reportTime }}</td>
+          <td>{{ r.status }}</td>
+          <td class="actions">
+            <button class="action-btn" title="Message" (click)="openMessageModal(r)">
+              <img src="images/message.png" alt="Message" />
+            </button>
+            <button class="action-btn" title="Location" (click)="openLocationModal(r)">
+            <img src="images/location.png" alt="Location" />
+           </button>
+            <button class="action-btn" title="Details" (click)="openReportModal(r)">
+              <img src="images/details.png" alt="Details" />
+            </button>
+            <button class="action-btn" title="User Feedback" (click)="openFeedbackModal(r)">
+              <img src="images/userfeedback.png" alt="User Feedback" />
+            </button>
+            <button class="action-btn" title="BFP Feedback" (click)="openBfpFeedbackModal(r)">
+              <img src="images/bfpfeedback.png" alt="BFP Feedback" />
+            </button>
+          </td>
         </tr>
       </tbody>
     </table>
   </div>
 </div>
+
+<!-- =========================
+     MESSENGER MODAL
+========================= -->
+<div class="modal-backdrop" *ngIf="showMessageModal" (click)="closeMessageModal()"></div>
+<div class="messenger-modal" *ngIf="showMessageModal">
+  <div class="modal-header">
+    <div class="user-info">
+      <img class="profile-pic"
+           [src]="selectedReport?.profile ? 'data:image/jpeg;base64,' + selectedReport.profile : 'images/profile.png'"
+           alt="User" />
+      <div class="user-details">
+        <div class="user-name">{{ selectedReport?.name || 'Unknown User' }}</div>
+        <div class="user-status">{{ getUserStatus(selectedReport?.isActive, selectedReport?.lastSeen) }}</div>
+      </div>
+    </div>
+    <button class="close-btn" (click)="closeMessageModal()">×</button>
+  </div>
+
+  <div class="messages">
+    <div class="chat-date">{{ todayDate }}</div>
+    <div *ngFor="let msg of messages" class="bubble" [ngClass]="msg.sender === 'Station' ? 'me' : 'other'">
+      <div class="bubble-text">{{ msg.text }}</div>
+      <div class="bubble-time">{{ msg.time }}</div>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <button class="tool-btn"><img src="images/mic.png"></button>
+    <button class="tool-btn"><img src="images/camera.png"></button>
+    <button class="tool-btn"><img src="images/gallery.png"></button>
+    <input type="text" [(ngModel)]="newMessage" placeholder="Aa" class="msg-input" (input)="onMessageInputChange()" />
+    <button class="emoji-btn"><img src="images/happiness.png"></button>
+    <button class="send-btn" (click)="sendMessage()"><img [src]="sendIcon" /></button>
+  </div>
+</div>
+
+
+
+<!-- =========================
+     LOCATION MODAL
+========================= -->
+<div class="modal-backdrop" *ngIf="showLocationModal" (click)="closeLocationModal()"></div>
+
+<div class="location-modal" *ngIf="showLocationModal" (click)="$event.stopPropagation()">
+
+  <div class="modal-header">
+    <h3>Incident Location</h3>
+    <button class="close-btn" (click)="closeLocationModal()">×</button>
+  </div>
+
+  <div class="modal-body">
+
+    <!-- MAP ROUTING BLOCK -->
+    <div class="map-section">
+      <h4 class="section-title">MAP ROUTING</h4>
+      <div id="routingMap" class="map-box"></div>
+    </div>
+
+    <!-- GEOFENCE MAP BLOCK -->
+    <div class="map-section">
+      <h4 class="section-title">
+        GEOFENCE MAP STRUCTURES INVOLVE –
+        <span class="count">{{ geofenceCount || 0 }}</span>
+      </h4>
+
+      <div id="geofenceMap" class="map-box"></div>
+    </div>
+
+  </div>
+
+  <div class="modal-footer">
+    <button class="footer-btn close-btn-footer" (click)="closeLocationModal()">CLOSE</button>
+  </div>
+
+</div>
+
+
+
+<!-- =========================
+     DETAILS MODAL
+========================= -->
+
+<!-- Backdrop -->
+<div class="modal-backdrops" *ngIf="showReportModal && selectedReportDetails" (click)="closeReportModal()"></div>
+
+<!-- Modal -->
+<div class="report-modal" *ngIf="showReportModal && selectedReportDetails" (click)="$event.stopPropagation()">
+  <div class="modal-header">
+    <h3>Report Details</h3>
+    <button class="close-btn" (click)="closeReportModal()">×</button>
+  </div>
+
+  <div class="modal-content two-column">
+    <div class="left-column">
+      <div class="field"><label>Name:</label><div class="value">{{ selectedReportDetails.name || 'N/A' }}</div></div>
+      <div class="field"><label>Email:</label><div class="value">{{ selectedReportDetails.email || 'N/A' }}</div></div>
+      <div class="field"><label>Contact:</label><div class="value">{{ selectedReportDetails.contact || 'N/A' }}</div></div>
+      <div class="field"><label>Type:</label><div class="value">{{ selectedReportDetails.type || 'N/A' }}</div></div>
+      <div class="field"><label>Date:</label><div class="value">{{ selectedReportDetails.date || 'N/A' }}</div></div>
+      <div class="field"><label>Time:</label><div class="value">{{ selectedReportDetails.reportTime || 'N/A' }}</div></div>
+      <div class="field"><label>Location:</label><div class="value">{{ selectedReportDetails.exactLocation || 'N/A' }}</div></div>
+      <div class="field"><label>Status:</label><div class="value">{{ selectedReportDetails.status || 'N/A' }}</div></div>
+      <div class="field"><label>Is My Location:</label><div class="value">{{ getLocationDisplay(selectedReportDetails.myLocation) || 'N/A' }}</div></div>
+    </div>
+
+    <div class="right-column">
+      <label>Photo:</label>
+      <img *ngIf="selectedReportDetails.photoBase64"
+           [src]="'data:image/jpeg;base64,' + selectedReportDetails.photoBase64"
+           alt="Report Photo" class="report-photo"/>
+      <div *ngIf="!selectedReportDetails.photoBase64" class="no-photo-text">No photo of report</div>
+
+      <div class="photo-buttons">
+        <button class="footer-btn accept-btn-footer">ACCEPT</button>
+        <button class="footer-btn backup-btn-footer">REQUEST BACKUP</button>
+        <button class="footer-btn close-btn-footer" (click)="closeReportModal()">CLOSE</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- =========================
+     USER FEEDBACK MODAL
+========================= -->
+<div class="modal-backdrop" *ngIf="showFeedbackModal" (click)="closeFeedbackModal()"></div>
+<div class="feedback-modal" *ngIf="showFeedbackModal">
+  <div class="modal-header">
+    <h3>User Feedback</h3>
+    <button class="close-btn" (click)="closeFeedbackModal()">×</button>
+  </div>
+
+  <div class="feedback-modal-content">
+    <div class="field rating-field">
+      <label>Rating:</label>
+      <div class="rating-stars">
+        <span *ngFor="let star of [1,2,3,4,5]; let i = index">
+          <i class="star" [ngClass]="i < (selectedFeedback?.rating || 0) ? 'filled' : ''">&#9733;</i>
+        </span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Message:</label>
+      <div class="value">{{ selectedFeedback?.message || 'No message provided' }}</div>
+    </div>
+  </div>
+
+  <div class="feedback-btn-wrapper">
+    <button class="feedback-close-btn" (click)="closeFeedbackModal()">CLOSE</button>
+  </div>
+</div>
+
+<!-- =========================
+     BFP FEEDBACK MODAL
+========================= -->
+<div class="modal-backdrop" *ngIf="showBfpFeedbackModal" (click)="closeBfpFeedbackModal()"></div>
+
+<div class="feedback-modal" *ngIf="showBfpFeedbackModal && bfpFeedback">
+  <div class="modal-header">
+    <h3>BFP Feedback</h3>
+    <button class="close-btn" (click)="closeBfpFeedbackModal()">×</button>
+  </div>
+
+  <div class="feedback-modal-content">
+    <!-- Structures Affected -->
+    <div class="field">
+      <label>Structures Affected:</label>
+      <input type="text" [(ngModel)]="bfpFeedback.structuresAffected" placeholder="Enter affected structures"/>
+    </div>
+
+    <!-- Cause of Fire -->
+    <div class="field">
+      <label>Cause of Fire:</label>
+      <input type="text" [(ngModel)]="bfpFeedback.causeOfFire" placeholder="Enter cause of fire"/>
+    </div>
+
+    <!-- Fire Out Time -->
+    <div class="field">
+      <label>Fire Out Time:</label>
+      <input type="time" [(ngModel)]="bfpFeedback.fireOutTime"/>
+    </div>
+
+    <!-- Responders -->
+    <div class="field">
+      <label>Responders:</label>
+      <div *ngIf="bfpFeedback.responders && bfpFeedback.responders.length > 0; else noResponders">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let name of bfpFeedback.responders; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td>{{ name }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ng-template #noResponders>
+        <div class="no-responders">No responders added</div>
+      </ng-template>
+    </div>
+  </div>
+
+  <div class="feedback-btn-wrapper">
+    <button class="feedback-close-btn" (click)="closeBfpFeedbackModal()">Close</button>
+  </div>
+</div>
+
