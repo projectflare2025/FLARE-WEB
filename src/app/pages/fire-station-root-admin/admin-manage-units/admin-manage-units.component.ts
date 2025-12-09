@@ -158,10 +158,7 @@ export class AdminManageUnitsComponent implements AfterViewInit {
       const user = userCred.user;
 
       // SEND VERIFICATION EMAIL
-      await sendEmailVerification(user, {
-        url: 'https://flare-tagum-web-app-51c7a.firebaseapp.com',
-        handleCodeInApp: false,
-      });
+       await sendEmailVerification(user);
 
       // DATE / TIME / TIMESTAMP
       const now = new Date();

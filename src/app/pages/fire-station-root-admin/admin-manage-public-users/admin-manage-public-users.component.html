@@ -1,76 +1,122 @@
 <div class="page-container">
 
+  <!-- HEADER -->
   <div class="header-card">
-    <h2>Public Users Management</h2>
+    <div>
+      <h2>Public Users Management</h2>
+      <p class="header-subtitle">View, edit, and manage public user accounts.</p>
+    </div>
+    <div class="header-actions">
+      <!-- Optional search or filter button later -->
+      <!-- <button class="btn btn-ghost">Export</button> -->
+    </div>
   </div>
 
+  <!-- TABLE CARD -->
   <div class="table-card">
-    <div class="table-title">Users List</div>
+    <div class="table-header">
+      <div class="table-title">Users List</div>
+      <div class="table-subtitle">{{ userList.length }} users total</div>
+    </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Contact</th>
-          <th>Role</th>
-          <th>Status</th>
-          <th>Active</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Contact</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th class="checkbox-cell">Active</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
 
-      <tbody>
-        <tr *ngFor="let user of userList; let i = index">
-          <td>{{ i + 1 }}</td>
-          <td>{{ user.name }}</td>
-          <td>{{ user.email }}</td>
-          <td>{{ user.contact }}</td>
-          <td>{{ user.role }}</td>
-          <td>{{ user.status }}</td>
-         <td>
-          <input type="checkbox" [(ngModel)]="user.isActive" (change)="toggleActive(user)">
-        </td>
-
-          <td>
-            <button class="action-btn" (click)="openEditModal(user)">Edit</button>
-            <button class="delete-btn" (click)="deleteUser(user)">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+        <tbody>
+          <tr *ngFor="let user of userList; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.contact }}</td>
+            <td>
+              <span class="badge badge-role">{{ user.role }}</span>
+            </td>
+            <td>
+              <span
+                class="badge"
+                [ngClass]="user.status === 'Active' ? 'badge-status-active' : 'badge-status-inactive'">
+                {{ user.status }}
+              </span>
+            </td>
+            <td class="checkbox-cell">
+              <input type="checkbox" [(ngModel)]="user.isActive" (change)="toggleActive(user)">
+            </td>
+            <td>
+              <div class="row-actions">
+                <button class="btn btn-ghost" (click)="openEditModal(user)">Edit</button>
+                <button class="btn btn-danger-outline" (click)="deleteUser(user)">Delete</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 
 <!-- EDIT USER MODAL -->
 <div class="modal-backdrop" *ngIf="showEditModal">
   <div class="modal-box">
-    <div class="modal-title">Edit User</div>
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Edit User</div>
+        <div class="modal-subtitle">Update user details and permissions.</div>
+      </div>
+      <button class="icon-btn" (click)="closeEditModal()">✕</button>
+    </div>
 
     <div class="form-container">
-      <label>Name</label>
-      <input [(ngModel)]="editName" type="text">
 
-      <label>Email</label>
-      <input [(ngModel)]="editEmail" type="email">
+      <div class="form-field">
+        <label>Name</label>
+        <input [(ngModel)]="editName" type="text">
+      </div>
 
-      <label>Contact</label>
-      <input [(ngModel)]="editContact" type="text">
+      <div class="form-field">
+        <label>Email</label>
+        <input [(ngModel)]="editEmail" type="email">
+      </div>
 
-      <label>Role</label>
-      <input [(ngModel)]="editRole" type="text">
+      <div class="form-field">
+        <label>Contact</label>
+        <input [(ngModel)]="editContact" type="text">
+      </div>
 
-      <label>Status</label>
-      <input [(ngModel)]="editStatus" type="text">
+      <div class="form-field">
+        <label>Role</label>
+        <input [(ngModel)]="editRole" type="text">
+        <!-- or use <select> if you have fixed roles -->
+      </div>
 
-      <label>Active</label>
-      <input type="checkbox" [(ngModel)]="editIsActive">
+      <div class="form-field">
+        <label>Status</label>
+        <select [(ngModel)]="editStatus">
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label>Active</label>
+        <input type="checkbox" [(ngModel)]="editIsActive">
+      </div>
     </div>
 
     <div class="modal-footer">
-      <button class="cancel-btn" (click)="closeEditModal()">Cancel</button>
-      <button class="save-btn" (click)="saveUser()">Save</button>
+      <button class="btn btn-ghost" (click)="closeEditModal()">Cancel</button>
+      <button class="btn btn-primary" (click)="saveUser()">Save</button>
     </div>
   </div>
 </div>

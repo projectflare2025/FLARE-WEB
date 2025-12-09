@@ -2,42 +2,82 @@
 
   <!-- HEADER -->
   <div class="header-card">
-    <h2>Fire Station Management</h2>
-    <button class="add-btn" (click)="openModal()">Add Station</button>
+    <div class="header-text">
+      <h2>Fire Station Management</h2>
+      <p>Manage central and sub-stations, status, and locations.</p>
+    </div>
+    <button class="btn primary-btn" (click)="openModal()">
+      + Add Station
+    </button>
   </div>
 
   <!-- TABLE -->
-  <div class="table-card">
-    <div class="table-title">Station List</div>
+  <div class="card table-card">
+    <div class="table-header">
+      <div class="table-title">Station List</div>
+      <div class="table-subtitle">{{ stationList.length }} stations total</div>
+    </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Station Name</th>
-          <th>Role</th>
-          <th>Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Station Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th class="text-right">Action</th>
+          </tr>
+        </thead>
 
-      <tbody>
-        <tr *ngFor="let station of stationList; let i = index">
-          <td>{{ i + 1 }}</td>
-          <td>{{ station.stationName }}</td>
-          <td>{{ station.role }}</td>
-          <td>{{ station.status }}</td>
-          <td>
-            <button class="action-btn" (click)="editStation(station)">Edit</button>
-            <button class="action-btn delete-btn" (click)="deleteStation(station)">Delete</button>
-             <button class="action-btn" (click)="toggleStatus(station)">
-              {{ station.status === 'Active' ? 'Disable' : 'Enable' }}
-            </button>
-          </td>
-        </tr>
-      </tbody>
+        <tbody>
+          <tr *ngFor="let station of stationList; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>
+              <div class="station-cell">
+                <div class="station-name">{{ station.stationName }}</div>
+                <div class="station-meta" *ngIf="station.role === 'SubStation' && station.parentStationName">
+                  Parent: {{ station.parentStationName }}
+                </div>
 
-    </table>
+              </div>
+            </td>
+            <td>
+                  <div class="station-meta email-meta">
+                  {{ station.email }}
+                </div>
+            </td>
+            <td>
+              <span class="role-pill" [ngClass]="station.role === 'Central' ? 'role-central' : 'role-sub'">
+                {{ station.role }}
+              </span>
+            </td>
+            <td>
+              <span class="status-pill" [ngClass]="station.status === 'Active' ? 'status-active' : 'status-inactive'">
+                {{ station.status }}
+              </span>
+            </td>
+            <td class="text-right">
+              <div class="actions">
+                <button class="btn ghost-btn" (click)="editStation(station)">Edit</button>
+                <button class="btn danger-outline-btn" (click)="deleteStation(station)">Delete</button>
+                <button class="btn ghost-btn" (click)="toggleStatus(station)">
+                  {{ station.status === 'Active' ? 'Disable' : 'Enable' }}
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="stationList.length === 0">
+            <td colspan="5" class="empty-state">
+              No stations yet. Click <strong>“Add Station”</strong> to create one.
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
+    </div>
   </div>
 </div>
 
@@ -48,25 +88,39 @@
 <div class="modal-backdrop" *ngIf="showModal">
   <div class="modal-box">
 
-    <div class="modal-title">{{ isEditMode ? 'Edit Fire Station' : 'Add Fire Station' }}</div>
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">
+          {{ isEditMode ? 'Edit Fire Station' : 'Add Fire Station' }}
+        </div>
+        <div class="modal-subtitle">
+          {{ isEditMode ? 'Update station details and location.' : 'Fill in the details to create a new station.' }}
+        </div>
+      </div>
+      <button class="icon-btn close-icon" (click)="closeModal()">✕</button>
+    </div>
 
     <div class="modal-content">
 
       <!-- LEFT FORM -->
       <div class="left-form">
-        <label>Station Name</label>
-        <input [(ngModel)]="stationName" type="text">
+        <div class="form-group">
+          <label>Station Name <span class="required">*</span></label>
+          <input [(ngModel)]="stationName" type="text" placeholder="e.g. Davao Central Fire Station">
+        </div>
 
-        <label>Role</label>
-        <select [(ngModel)]="role" (change)="setParentStationName()">
-          <option value="">Select role</option>
-          <option value="Central">Central</option>
-          <option value="SubStation">SubStation</option>
-        </select>
+        <div class="form-group">
+          <label>Role <span class="required">*</span></label>
+          <select [(ngModel)]="role" (change)="setParentStationName()">
+            <option value="">Select role</option>
+            <option value="Central">Central</option>
+            <option value="SubStation">SubStation</option>
+          </select>
+        </div>
 
         <!-- PARENT CENTRAL STATION -->
         <div class="form-group" *ngIf="role === 'SubStation'">
-          <label>Parent Central Station</label>
+          <label>Parent Central Station <span class="required">*</span></label>
           <select [(ngModel)]="parentStationId" (change)="setParentStationName()">
             <option value="">Select Central Station</option>
             <option *ngFor="let c of centralStations" [value]="c.id">
@@ -75,20 +129,29 @@
           </select>
         </div>
 
-        <label>Contact</label>
-        <input [(ngModel)]="contact" type="text">
+        <div class="form-group">
+          <label>Contact <span class="required">*</span></label>
+          <input [(ngModel)]="contact" type="text" placeholder="e.g. 0912 345 6789">
+        </div>
 
-        <label>Email</label>
-        <input [(ngModel)]="email" type="email" [readonly]="isEditMode">
+        <div class="form-group">
+          <label>Email <span class="required">*</span></label>
+          <input [(ngModel)]="email" type="email" [readonly]="isEditMode" placeholder="station@email.com">
+        </div>
 
-        <label>Password</label>
-        <input [(ngModel)]="password" type="password" [placeholder]="isEditMode ? 'Leave blank to keep password' : 'Enter password'">
+        <div class="form-group">
+          <label>Password <span *ngIf="!isEditMode" class="required">*</span></label>
+          <input [(ngModel)]="password" type="password"
+                 [placeholder]="isEditMode ? 'Leave blank to keep current password' : 'Enter password'">
+        </div>
 
-        <label>Status</label>
-        <select [(ngModel)]="status">
-          <option>Active</option>
-          <option>Inactive</option>
-        </select>
+        <div class="form-group">
+          <label>Status</label>
+          <select [(ngModel)]="status">
+            <option>Active</option>
+            <option>Inactive</option>
+          </select>
+        </div>
 
       </div>
 
@@ -101,8 +164,8 @@
     </div>
 
     <div class="modal-footer">
-      <button class="cancel-btn" (click)="closeModal()">Cancel</button>
-      <button class="save-btn" (click)="saveStation()">
+      <button class="btn ghost-btn" (click)="closeModal()">Cancel</button>
+      <button class="btn primary-btn" (click)="saveStation()">
         {{ isEditMode ? 'Update Station' : 'Save Station' }}
       </button>
     </div>

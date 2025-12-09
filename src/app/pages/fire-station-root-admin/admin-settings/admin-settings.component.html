@@ -1,1 +1,99 @@
-<p>admin-settings works!</p>
+<div class="page-container">
+
+  <!-- HEADER -->
+  <div class="header-card">
+    <div>
+      <h2>Admin Settings</h2>
+      <p class="header-subtitle">
+        Manage your admin profile, security, and system preferences.
+      </p>
+    </div>
+    <div class="header-actions">
+      <!-- Optional: add real actions later -->
+      <!-- <button class="btn btn-ghost">View Logs</button> -->
+    </div>
+  </div>
+
+  <!-- CONTENT GRID -->
+  <div class="settings-grid">
+
+    <!-- PROFILE SETTINGS -->
+    <div class="settings-card">
+      <h3>Profile</h3>
+      <p class="card-subtitle">Update your display name and contact email.</p>
+
+      <div class="form-field">
+        <label>Admin Name</label>
+        <input type="text" [(ngModel)]="adminName">
+      </div>
+
+      <div class="form-field">
+        <label>Email</label>
+        <input type="email" [(ngModel)]="adminEmail">
+      </div>
+
+      <button class="btn btn-primary full-width" (click)="saveProfile()">
+        Save Profile
+      </button>
+    </div>
+
+    <!-- SECURITY -->
+    <div class="settings-card">
+      <h3>Security</h3>
+      <p class="card-subtitle">Change your password to keep your account secure.</p>
+
+      <div class="form-field">
+        <label>New Password</label>
+        <input type="password" [(ngModel)]="newPassword">
+      </div>
+
+      <div class="form-field">
+        <label>Confirm Password</label>
+        <input type="password" [(ngModel)]="confirmPassword">
+      </div>
+
+      <button class="btn btn-primary full-width" (click)="changePassword()">
+        Update Password
+      </button>
+    </div>
+
+    <!-- APP PREFERENCES -->
+    <div class="settings-card">
+      <h3>Application Preferences</h3>
+      <p class="card-subtitle">Customize how the admin panel behaves.</p>
+
+      <div class="toggle-row">
+        <span>Dark Mode</span>
+        <label class="switch">
+          <input type="checkbox" [(ngModel)]="darkMode" (change)="toggleDarkMode()">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row">
+        <span>Enable System Alerts</span>
+        <label class="switch">
+          <input type="checkbox" [(ngModel)]="alertsEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- MAINTENANCE / DANGER ZONE -->
+    <div class="settings-card danger">
+      <h3>System Maintenance</h3>
+      <p class="card-subtitle">
+        Use these tools with caution. These actions affect the whole system.
+      </p>
+
+      <button class="btn btn-danger full-width" (click)="clearLogs()">
+        Clear System Logs
+      </button>
+
+      <button class="btn btn-danger-outline full-width" (click)="resetCounts()">
+        Reset Dashboard Counters
+      </button>
+    </div>
+
+  </div>
+</div>

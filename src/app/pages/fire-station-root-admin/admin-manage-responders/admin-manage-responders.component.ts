@@ -163,10 +163,7 @@ export class AdminManageRespondersComponent implements AfterViewInit {
       const user = userCred.user;
 
       // send verification email
-      await sendEmailVerification(user, {
-        url: 'https://flare-tagum-web-app-51c7a.firebaseapp.com',
-        handleCodeInApp: false
-      });
+     await sendEmailVerification(user);
 
       // build responder doc
       const now = new Date();

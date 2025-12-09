@@ -3,9 +3,12 @@
 
   <!-- HEADER -->
   <div class="header-card">
-    <h2>Responder Account Management</h2>
+    <div>
+      <h2>Responder Account Management</h2>
+      <p class="header-subtitle">Create, update, and manage responder accounts.</p>
+    </div>
     <div class="header-actions">
-      <button class="add-btn" (click)="openAddModal()">Add Responder</button>
+      <button class="add-btn" (click)="openAddModal()">+ Add Responder</button>
     </div>
   </div>
 
@@ -13,52 +16,50 @@
   <div class="table-card">
     <div class="table-title">Responder List</div>
 
-    <table class="responder-table">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Name</th>
-          <th>Station</th>
-          <th>Contact</th>
-          <th>Email</th>
-          <th>Role</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
+    <div class="responder-table-wrapper">
+      <table class="responder-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Station</th>
+            <th>Contact</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
 
-      <tbody>
-        <tr *ngFor="let r of responderList; let i = index">
-          <td>{{ i + 1 }}</td>
-          <td>{{ r.responderName }}</td>
-          <td>{{ r.stationName }}</td>
-          <td>{{ r.contact }}</td>
-          <td>{{ r.email }}</td>
-          <td>{{ r.role }}</td>
-          <td>
-            <span [class.badge-active]="r.status === 'Active'"
-                  [class.badge-inactive]="r.status !== 'Active'">
-              {{ r.status }}
-            </span>
-          </td>
-          <td class="actions-cell">
-            <button class="icon-btn" (click)="openEditModal(r)">
-              Edit
-            </button>
-            <button class="icon-btn danger" (click)="confirmDelete(r)">
-              Delete
-            </button>
-            <button class="icon-btn" (click)="toggleStatus(r)">
-              {{ r.status === 'Active' ? 'Disable' : 'Enable' }}
-            </button>
-          </td>
-        </tr>
+        <tbody>
+          <tr *ngFor="let r of responderList; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ r.responderName }}</td>
+            <td>{{ r.stationName }}</td>
+            <td>{{ r.contact }}</td>
+            <td>{{ r.email }}</td>
+            <td>{{ r.role }}</td>
+            <td>
+              <span
+                [ngClass]="r.status === 'Active' ? 'badge-active' : 'badge-inactive'">
+                {{ r.status }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button class="icon-btn" (click)="openEditModal(r)">Edit</button>
+              <button class="icon-btn danger" (click)="confirmDelete(r)">Delete</button>
+              <button class="icon-btn" (click)="toggleStatus(r)">
+                {{ r.status === 'Active' ? 'Disable' : 'Enable' }}
+              </button>
+            </td>
+          </tr>
 
-        <tr *ngIf="responderList.length === 0">
-          <td colspan="8" class="empty">No responders yet.</td>
-        </tr>
-      </tbody>
-    </table>
+          <tr *ngIf="responderList.length === 0">
+            <td colspan="8" class="empty">No responders yet. Click “Add Responder” to create one.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
 </div>
@@ -67,7 +68,9 @@
 <div class="modal-backdrop" *ngIf="showModal">
   <div class="modal-box">
 
-    <div class="modal-title">{{ isEditMode ? 'Edit Responder' : 'Add Responder' }}</div>
+    <div class="modal-title">
+      {{ isEditMode ? 'Edit Responder' : 'Add Responder' }}
+    </div>
 
     <div class="modal-content">
       <div class="form-container">
@@ -143,7 +146,8 @@
   <div class="modal-box small">
     <div class="modal-title">Confirm Delete</div>
     <div class="modal-content">
-      Are you sure you want to delete <strong>{{ deleteTarget?.responderName }}</strong>?
+      Are you sure you want to delete
+      <strong>{{ deleteTarget?.responderName }}</strong>?
       This will remove the responder document from Firestore but will NOT touch Firebase Auth.
     </div>
     <div class="modal-footer">

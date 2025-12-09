@@ -153,81 +153,91 @@ export class AdminManageStationsComponent implements AfterViewInit {
   }
 
   async saveStation() {
-    if (!this.stationName.trim() || !this.role || !this.contact.trim() || !this.email.trim() || !this.status) {
-      alert("Please fill in all required fields.");
-      return;
-    }
+  if (!this.stationName.trim() || !this.role || !this.contact.trim() || !this.email.trim() || !this.status) {
+    alert("Please fill in all required fields.");
+    return;
+  }
 
-    if (!this.latitude || !this.longitude) {
-      alert("Please select a location on the map.");
-      return;
-    }
+  if (!this.latitude || !this.longitude) {
+    alert("Please select a location on the map.");
+    return;
+  }
 
-    if (this.role === 'SubStation' && !this.parentStationId) {
-      alert("Please select a parent Central Station.");
-      return;
-    }
+  if (this.role === 'SubStation' && !this.parentStationId) {
+    alert("Please select a parent Central Station.");
+    return;
+  }
 
-    try {
-      if (this.isEditMode && this.editStationId) {
-        // ========================
-        // UPDATE EXISTING STATION
-        // ========================
-        const stationRef = doc(this.firestore, `fireStations/${this.editStationId}`);
-        const updateData: any = {
-          stationName: this.stationName,
-          role: this.role,
-          parentStationId: this.role === 'SubStation' ? this.parentStationId : '',
-          parentStationName: this.role === 'SubStation' ? this.parentStationName : '',
-          contact: this.contact,
-          status: this.status,
-          latitude: this.latitude,
-          longitude: this.longitude
-        };
+  // ========================
+  // CONFIRMATION BEFORE SAVE
+  // ========================
+  const actionText = this.isEditMode
+    ? `update the station "${this.stationName}"?`
+    : `create the station "${this.stationName}" and send a verification email?`;
 
-        // Optional password update only if provided
-        if (this.password.trim()) {
-          // Updating password in Auth requires admin privileges; skipping here
-        }
+  const confirmed = confirm(`Are you sure you want to ${actionText}`);
+  if (!confirmed) return;
 
-        await updateDoc(stationRef, updateData);
-        alert("Station updated successfully!");
-      } else {
-        // ========================
-        // CREATE NEW STATION
-        // ========================
-        const userCred = await createUserWithEmailAndPassword(this.auth, this.email, this.password);
-        const user = userCred.user;
-        await sendEmailVerification(user);
+  try {
+    if (this.isEditMode && this.editStationId) {
+      // ========================
+      // UPDATE EXISTING STATION
+      // ========================
+      const stationRef = doc(this.firestore, `fireStations/${this.editStationId}`);
+      const updateData: any = {
+        stationName: this.stationName,
+        role: this.role,
+        parentStationId: this.role === 'SubStation' ? this.parentStationId : '',
+        parentStationName: this.role === 'SubStation' ? this.parentStationName : '',
+        contact: this.contact,
+        status: this.status,
+        latitude: this.latitude,
+        longitude: this.longitude
+      };
 
-
-        const stationData: any = {
-          stationName: this.stationName,
-          role: this.role,
-          parentStationId: this.role === 'SubStation' ? this.parentStationId : '',
-          parentStationName: this.role === 'SubStation' ? this.parentStationName : '',
-          contact: this.contact,
-          email: this.email,
-          status: this.status,
-          latitude: this.latitude,
-          longitude: this.longitude,
-          authUid: user.uid,
-          createdAt: new Date(),
-          verificationStatus: "unverified"
-        };
-
-        const stationsRef = collection(this.firestore, 'fireStations');
-        await addDoc(stationsRef, stationData);
-        alert("Station created! Verification email sent.");
+      // Optional password update only if provided
+      if (this.password.trim()) {
+        // Updating password in Auth requires admin privileges; skipping here
       }
 
-      this.closeModal();
+      await updateDoc(stationRef, updateData);
+      alert("Station updated successfully!");
+    } else {
+      // ========================
+      // CREATE NEW STATION
+      // ========================
+      const userCred = await createUserWithEmailAndPassword(this.auth, this.email, this.password);
+      const user = userCred.user;
+      await sendEmailVerification(user);
 
-    } catch (error: any) {
-      console.error(error);
-      alert(error.message);
+      const stationData: any = {
+        stationName: this.stationName,
+        role: this.role,
+        parentStationId: this.role === 'SubStation' ? this.parentStationId : '',
+        parentStationName: this.role === 'SubStation' ? this.parentStationName : '',
+        contact: this.contact,
+        email: this.email,
+        status: this.status,
+        latitude: this.latitude,
+        longitude: this.longitude,
+        authUid: user.uid,
+        createdAt: new Date(),
+        verificationStatus: "unverified"
+      };
+
+      const stationsRef = collection(this.firestore, 'fireStations');
+      await addDoc(stationsRef, stationData);
+      alert("Station created! Verification email sent.");
     }
+
+    this.closeModal();
+
+  } catch (error: any) {
+    console.error(error);
+    alert(error.message);
   }
+}
+
 
   async deleteStation(station: any) {
     const confirmDelete = confirm(`Are you sure you want to delete "${station.stationName}"?`);

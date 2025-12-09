@@ -1,63 +1,71 @@
-<!-- admin-manage-units.component.html -->
 <div class="page-container">
 
   <!-- HEADER -->
   <div class="header-card">
-    <h2>Unit Account Management</h2>
-    <button class="add-btn" (click)="openAddModal()">Add Unit</button>
+    <div>
+      <h2>Unit Account Management</h2>
+      <p class="header-subtitle">Create, update, and manage unit accounts.</p>
+    </div>
+    <button class="add-btn" (click)="openAddModal()">+ Add Unit</button>
   </div>
 
   <!-- UNIT LIST TABLE -->
   <div class="table-card">
     <div class="table-title">Unit List</div>
+    <!-- optional subtitle if you want counts -->
+    <!-- <div class="table-subtitle">{{ unitList.length }} units total</div> -->
 
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Unit Name</th>
-          <th>Station</th>
-          <th>Email</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Unit Name</th>
+            <th>Station</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
 
-      <tbody>
-        <tr *ngFor="let u of unitList; let i = index">
-          <td>{{ i + 1 }}</td>
-          <td>{{ u.unitName }}</td>
-          <td>{{ u.stationName }}</td>
-          <td>{{ u.email }}</td>
-          <td>
-            <span [class.badge-active]="u.status === 'Active'"
-                  [class.badge-inactive]="u.status !== 'Active'">
-              {{ u.status }}
-            </span>
-          </td>
-          <td>
-            <button class="icon-btn" (click)="openEditModal(u)">Edit</button>
-            <button class="icon-btn danger" (click)="confirmDelete(u)">Delete</button>
-            <button class="icon-btn" (click)="toggleStatus(u)">
-              {{ u.status === 'Active' ? 'Disable' : 'Enable' }}
-            </button>
-          </td>
-        </tr>
+        <tbody>
+          <tr *ngFor="let u of unitList; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ u.unitName }}</td>
+            <td>{{ u.stationName }}</td>
+            <td>{{ u.email }}</td>
+            <td>
+              <span
+                [ngClass]="u.status === 'Active' ? 'badge-active' : 'badge-inactive'">
+                {{ u.status }}
+              </span>
+            </td>
+            <td>
+              <button class="icon-btn" (click)="openEditModal(u)">Edit</button>
+              <button class="icon-btn danger" (click)="confirmDelete(u)">Delete</button>
+              <button class="icon-btn" (click)="toggleStatus(u)">
+                {{ u.status === 'Active' ? 'Disable' : 'Enable' }}
+              </button>
+            </td>
+          </tr>
 
-        <tr *ngIf="unitList.length === 0">
-          <td colspan="6" class="empty">No units yet.</td>
-        </tr>
-      </tbody>
-    </table>
+          <tr *ngIf="unitList.length === 0">
+            <td colspan="6" class="empty">No units yet. Click “Add Unit” to create one.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
 </div>
 
-<!-- ADD / EDIT MODAL (Same UI for both) -->
+<!-- ADD / EDIT MODAL -->
 <div class="modal-backdrop" *ngIf="showModal">
   <div class="modal-box">
 
-    <div class="modal-title">{{ isEditMode ? 'Edit Unit' : 'Add Unit' }}</div>
+    <div class="modal-title">
+      {{ isEditMode ? 'Edit Unit' : 'Add Unit' }}
+    </div>
 
     <div class="modal-content">
       <div class="form-container">
@@ -119,7 +127,8 @@
   <div class="modal-box small">
     <div class="modal-title">Confirm Delete</div>
     <div class="modal-content">
-      Are you sure you want to delete <strong>{{ deleteTarget?.unitName }}</strong>?
+      Are you sure you want to delete
+      <strong>{{ deleteTarget?.unitName }}</strong>?
       This will remove the unit document from Firestore but will NOT delete the Firebase Auth account.
     </div>
     <div class="modal-footer">

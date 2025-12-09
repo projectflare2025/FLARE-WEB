@@ -4,104 +4,95 @@
   <div class="dashboard-header">
     <h2>Dashboard</h2>
 
-    <button class="create-btn">Create New Project</button>
+    <button class="create-btn">
+      Go to Management
+    </button>
   </div>
 
   <!-- STAT CARDS -->
   <div class="stats-container">
 
+    <!-- Stations -->
     <div class="stat-card">
-      <h1>18</h1>
-      <p>Projects</p>
-      <span>2 Completed</span>
+      <h1>{{ totalStations }}</h1>
+      <p>Stations</p>
+      <span>{{ activeStations }} Active</span>
     </div>
 
+    <!-- Units -->
     <div class="stat-card">
-      <h1>132</h1>
-      <p>Active Tasks</p>
-      <span>28 Completed</span>
+      <h1>{{ totalUnits }}</h1>
+      <p>Units</p>
+      <span>Linked to stations</span>
     </div>
 
+    <!-- Responders -->
     <div class="stat-card">
-      <h1>12</h1>
-      <p>Teams</p>
-      <span>1 Completed</span>
+      <h1>{{ totalResponders }}</h1>
+      <p>Responders</p>
+      <span>Field personnel</span>
     </div>
 
+    <!-- Public Users -->
     <div class="stat-card">
-      <h1>76%</h1>
-      <p>Productivity</p>
-      <span>5% Completed</span>
+      <h1>{{ totalPublicUsers }}</h1>
+      <p>Public Users</p>
+      <span>Registered in app</span>
     </div>
 
   </div>
 
-  <!-- ACTIVE PROJECT LIST -->
+  <!-- RECENT STATIONS LIST -->
   <div class="active-card">
-    <h3>Active Projects</h3>
+    <h3>Recent Stations</h3>
 
-    <table>
+    <table *ngIf="recentStations && recentStations.length > 0; else noStations">
       <thead>
         <tr>
-          <th>Project Name</th>
-          <th>Hours</th>
-          <th>Priority</th>
-          <th>Members</th>
-          <th>Progress</th>
+          <th>Station Name</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Contact</th>
         </tr>
       </thead>
 
       <tbody>
-        <tr>
-          <td><i class="icon">📦</i> Dropbox Design System</td>
-          <td>34</td>
-          <td><span class="tag normal">Normal</span></td>
-          <td class="members">
-            <img src="https://i.pravatar.cc/40?img=1"/>
-            <img src="https://i.pravatar.cc/40?img=2"/>
-            <img src="https://i.pravatar.cc/40?img=3"/>
+        <tr *ngFor="let station of recentStations">
+          <td>
+            <i class="icon">🚒</i> {{ station.stationName }}
           </td>
           <td>
-            <div class="progress"><div style="width: 15%;"></div></div>
-            <span class="percent">15%</span>
-          </td>
-        </tr>
-
-        <tr>
-          <td><i class="icon">💬</i> Slack Team UI Design</td>
-          <td>47</td>
-          <td><span class="tag normal">Normal</span></td>
-          <td class="members">
-            <img src="https://i.pravatar.cc/40?img=4"/>
-            <img src="https://i.pravatar.cc/40?img=5"/>
-            <img src="https://i.pravatar.cc/40?img=6"/>
+            <span
+              class="tag"
+              [ngClass]="{
+                'normal': station.role === 'Central',
+                'low': station.role === 'SubStation'
+              }"
+            >
+              {{ station.role }}
+            </span>
           </td>
           <td>
-            <div class="progress"><div style="width: 35%;"></div></div>
-            <span class="percent">35%</span>
-          </td>
-        </tr>
-
-        <tr>
-          <td><i class="icon">🚀</i> GitHub Satellite</td>
-          <td>120</td>
-          <td><span class="tag low">Low</span></td>
-          <td class="members">
-            <img src="https://i.pravatar.cc/40?img=7"/>
-            <img src="https://i.pravatar.cc/40?img=8"/>
-            <img src="https://i.pravatar.cc/40?img=9"/>
+            <span
+              class="tag"
+              [ngClass]="{
+                'active': station.status === 'Active',
+                'inactive': station.status !== 'Active'
+              }"
+            >
+              {{ station.status }}
+            </span>
           </td>
           <td>
-            <div class="progress"><div style="width: 75%;"></div></div>
-            <span class="percent">75%</span>
+            {{ station.contact || '—' }}
           </td>
         </tr>
-
-
-
       </tbody>
     </table>
 
+    <ng-template #noStations>
+      <p class="empty-text">No stations found.</p>
+    </ng-template>
   </div>
 
 </div>
