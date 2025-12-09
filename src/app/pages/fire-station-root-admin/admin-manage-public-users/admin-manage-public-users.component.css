@@ -1,0 +1,160 @@
+.page-container {
+  padding: 20px;
+  background: #f7f7f7;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+/* HEADER */
+.header-card {
+  background: #635BFF;
+  padding: 15px 25px;
+  border-radius: 10px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+/* TABLE */
+.table-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding-bottom: 10px;
+}
+
+.table-title {
+  padding: 12px 20px;
+  font-weight: 600;
+  border-bottom: 1px solid #ececec;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead tr:first-child {
+  background: #fafafa;
+  font-weight: 600;
+}
+
+th, td {
+  padding: 10px 20px;
+  text-align: left;
+}
+
+input, select {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+/* ACTION BUTTONS */
+.action-btn {
+  background: #635BFF;
+  color: white;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 5px;
+  font-size: 13px;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+.action-btn:hover {
+  background: #4e4bff;
+}
+
+.delete-btn {
+  background: #dc3545;
+}
+
+.delete-btn:hover {
+  background: #c82333;
+}
+
+/* MODAL */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-box {
+  width: 400px;
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.cancel-btn {
+  background: #777;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.save-btn {
+  background: #0056ff;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+/* LOADING SPINNER */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 5px solid #ccc;
+  border-top: 5px solid #0056ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

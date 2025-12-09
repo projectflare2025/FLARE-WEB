@@ -11,40 +11,72 @@
 
     <!-- Navigation -->
     <nav>
-      <ul class="nav-list">
-       <li>
-  <a routerLink="/admin-app/admin-dashboard" routerLinkActive="active">
-    <i class="fa fa-home"></i> Dashboard
-  </a>
-</li>
-
-<li>
-  <a routerLink="/admin-app/admin-manage-stations" routerLinkActive="active">
-    <i class="fa fa-users"></i> Manage Fire Stations
-  </a>
-</li>
 
 
-<li>
-  <a routerLink="/admin-app/admin-manage-drivers" routerLinkActive="active">
-    <i class="fa fa-cog"></i> Manage Drivers
-  </a>
-</li>
 
-<li>
-  <a routerLink="/admin-app/admin-settings" routerLinkActive="active">
-    <i class="fa fa-cog"></i> Settings
-  </a>
-</li>
+        <ul class="nav-list">
+  <!-- Dashboard -->
+  <li>
+    <a routerLink="/admin-app/admin-dashboard"
+       [ngClass]="{'active': activeParent === 'dashboard'}">
+      <i class="fa fa-home"></i> Dashboard
+    </a>
+  </li>
 
-<li>
-  <a (click)="logout()" routerLinkActive="active">
-    <i class="fa fa-sign-out"></i> Logout
-  </a>
-</li>
+  <!-- Manage Fire Stations -->
+  <li>
+    <a routerLink="/admin-app/admin-manage-stations"
+       [ngClass]="{'active': activeParent === 'stations'}">
+      <i class="fa fa-users"></i> Manage Fire Stations
+    </a>
+  </li>
+
+  <!-- Manage Application Users -->
+  <li>
+    <a href="javascript:void(0)"
+       (click)="toggleParent('appUsers')"
+       [ngClass]="{'active': activeParent === 'appUsers'}">
+      <i class="fa fa-cog"></i> Manage Application Users
+      <i class="fa" [ngClass]="{'fa-chevron-down': !showAppUsersSubmenu, 'fa-chevron-up': showAppUsersSubmenu}"></i>
+    </a>
+
+    <ul *ngIf="showAppUsersSubmenu" class="submenu">
+      <li>
+        <a routerLink="/admin-app/admin-manage-units"
+           [ngClass]="{'active': activeChild === '/admin-app/admin-manage-units'}"
+           (click)="setActiveChild('/admin-app/admin-manage-units')">Manage Units</a>
+      </li>
+      <li>
+        <a routerLink="/admin-app/admin-manage-responders"
+           [ngClass]="{'active': activeChild === '/admin-app/admin-manage-responders'}"
+           (click)="setActiveChild('/admin-app/admin-manage-responders')">Manage Responders</a>
+      </li>
+      <li>
+        <a routerLink="/admin-app/admin-manage-public-users"
+           [ngClass]="{'active': activeChild === '/admin-app/admin-manage-public-users'}"
+           (click)="setActiveChild('/admin-app/admin-manage-public-users')">Manage Public Users</a>
+      </li>
+    </ul>
+  </li>
+
+  <!-- Settings -->
+  <li>
+    <a routerLink="/admin-app/admin-settings"
+       [ngClass]="{'active': activeParent === 'settings'}">
+      <i class="fa fa-cog"></i> Settings
+    </a>
+  </li>
+
+  <!-- Logout -->
+  <li>
+    <a (click)="logout()">
+      <i class="fa fa-sign-out"></i> Logout
+    </a>
+  </li>
+</ul>
 
 
-      </ul>
+
     </nav>
   </aside>
 

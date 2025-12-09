@@ -1,13 +1,11 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
 import {
   Auth,
   createUserWithEmailAndPassword,
   sendEmailVerification
 } from '@angular/fire/auth';
-
 import {
   Firestore,
   collection,
@@ -15,7 +13,10 @@ import {
   query,
   orderBy,
   onSnapshot,
-  where
+  where,
+  doc,
+  updateDoc,
+  deleteDoc
 } from '@angular/fire/firestore';
 
 declare var google: any;
@@ -36,11 +37,11 @@ export class AdminManageStationsComponent implements AfterViewInit {
 
   // MODAL
   showModal = false;
+  isEditMode = false;
+  editStationId: string | null = null;
 
-  // MAIN LIST
+  // LISTS
   stationList: any[] = [];
-
-  // CENTRAL STATION DROPDOWN LIST
   centralStations: any[] = [];
 
   // FORM FIELDS
@@ -73,13 +74,13 @@ export class AdminManageStationsComponent implements AfterViewInit {
 
   closeModal() {
     this.showModal = false;
+    this.resetForm();
   }
 
-  // GOOGLE MAPS
   loadGoogleMapsScript() {
     const script = document.createElement('script');
     script.src =
-      'https://maps.googleapis.com/maps/api/js?key=AIzaSyBfiCPwDDMv2qMzTf9J3opEaRCKQJdrFGE&callback=initMap';
+      'https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap';
     script.async = true;
     (window as any).initMap = () => {};
     document.body.appendChild(script);
@@ -107,11 +108,9 @@ export class AdminManageStationsComponent implements AfterViewInit {
     });
   }
 
-  // LOAD ALL FIRE STATIONS
   loadStations() {
     const stationsRef = collection(this.firestore, 'fireStations');
     const q = query(stationsRef, orderBy('createdAt', 'desc'));
-
     onSnapshot(q, (snapshot) => {
       this.stationList = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -120,11 +119,9 @@ export class AdminManageStationsComponent implements AfterViewInit {
     });
   }
 
-  // LOAD ONLY CENTRAL STATIONS (FOR SUBSTATION DROPDOWN)
   loadCentralStations() {
     const stationsRef = collection(this.firestore, 'fireStations');
     const q = query(stationsRef, where('role', '==', 'Central'));
-
     onSnapshot(q, (snapshot) => {
       this.centralStations = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -134,111 +131,131 @@ export class AdminManageStationsComponent implements AfterViewInit {
   }
 
   setParentStationName() {
-  const station = this.centralStations.find(c => c.id === this.parentStationId);
-  this.parentStationName = station ? station.stationName : '';
-}
-
-async saveStation() {
-
-  // =============================
-  // REQUIRED FIELD VALIDATION
-  // =============================
-
-  if (!this.stationName.trim()) {
-    alert("Station Name is required.");
-    return;
+    const station = this.centralStations.find(c => c.id === this.parentStationId);
+    this.parentStationName = station ? station.stationName : '';
   }
 
-  if (!this.role) {
-    alert("Please select a Role.");
-    return;
+  editStation(station: any) {
+    this.isEditMode = true;
+    this.editStationId = station.id;
+
+    this.stationName = station.stationName;
+    this.role = station.role;
+    this.parentStationId = station.parentStationId || '';
+    this.parentStationName = station.parentStationName || '';
+    this.contact = station.contact;
+    this.email = station.email;
+    this.status = station.status;
+    this.latitude = station.latitude;
+    this.longitude = station.longitude;
+
+    this.openModal();
   }
 
-  if (this.role === 'SubStation' && !this.parentStationId) {
-    alert("Please select a Parent Central Station.");
-    return;
-  }
-
-  if (!this.contact.trim()) {
-    alert("Contact Number is required.");
-    return;
-  }
-
-  if (!this.email.trim()) {
-    alert("Email is required.");
-    return;
-  }
-
-  if (!this.password.trim()) {
-    alert("Password is required.");
-    return;
-  }
-
-  if (!this.status) {
-    alert("Please select a Status.");
-    return;
-  }
-
-  if (!this.latitude || !this.longitude) {
-    alert("Please select a location on the map.");
-    return;
-  }
-
-  // =============================
-  // CONFIRMATION
-  // =============================
-
-  const confirmSave = confirm("Are you sure you want to save this fire station?");
-  if (!confirmSave) return;
-
-  try {
-    // Create Auth Account
-    const userCred = await createUserWithEmailAndPassword(
-      this.auth,
-      this.email,
-      this.password
-    );
-    const user = userCred.user;
-
-    // Email Verification
-    await sendEmailVerification(user, {
-      url: 'https://flare-tagum-web-app-51c7a.firebaseapp.com',
-      handleCodeInApp: false,
-    });
-
-    // Firestore Data
-    const stationData: any = {
-      stationName: this.stationName,
-      role: this.role,
-      contact: this.contact,
-      email: this.email,
-      status: this.status,
-      latitude: this.latitude,
-      longitude: this.longitude,
-      verificationStatus: "unverified",
-      authUid: user.uid,
-      createdAt: new Date(),
-    };
-
-    if (this.role === 'SubStation') {
-      stationData.parentStationId = this.parentStationId;
-      stationData.parentStationName = this.parentStationName;
+  async saveStation() {
+    if (!this.stationName.trim() || !this.role || !this.contact.trim() || !this.email.trim() || !this.status) {
+      alert("Please fill in all required fields.");
+      return;
     }
 
-    // Save to Firestore
-    const stationsRef = collection(this.firestore, 'fireStations');
-    await addDoc(stationsRef, stationData);
+    if (!this.latitude || !this.longitude) {
+      alert("Please select a location on the map.");
+      return;
+    }
 
-    alert("Fire Station Created! Verification email sent.");
-    this.closeModal();
-    this.resetForm();
+    if (this.role === 'SubStation' && !this.parentStationId) {
+      alert("Please select a parent Central Station.");
+      return;
+    }
 
-  } catch (error: any) {
-    console.error(error);
-    alert(error.message);
+    try {
+      if (this.isEditMode && this.editStationId) {
+        // ========================
+        // UPDATE EXISTING STATION
+        // ========================
+        const stationRef = doc(this.firestore, `fireStations/${this.editStationId}`);
+        const updateData: any = {
+          stationName: this.stationName,
+          role: this.role,
+          parentStationId: this.role === 'SubStation' ? this.parentStationId : '',
+          parentStationName: this.role === 'SubStation' ? this.parentStationName : '',
+          contact: this.contact,
+          status: this.status,
+          latitude: this.latitude,
+          longitude: this.longitude
+        };
+
+        // Optional password update only if provided
+        if (this.password.trim()) {
+          // Updating password in Auth requires admin privileges; skipping here
+        }
+
+        await updateDoc(stationRef, updateData);
+        alert("Station updated successfully!");
+      } else {
+        // ========================
+        // CREATE NEW STATION
+        // ========================
+        const userCred = await createUserWithEmailAndPassword(this.auth, this.email, this.password);
+        const user = userCred.user;
+        await sendEmailVerification(user, { url: 'https://flare-tagum-web-app-51c7a.firebaseapp.com', handleCodeInApp: false });
+
+        const stationData: any = {
+          stationName: this.stationName,
+          role: this.role,
+          parentStationId: this.role === 'SubStation' ? this.parentStationId : '',
+          parentStationName: this.role === 'SubStation' ? this.parentStationName : '',
+          contact: this.contact,
+          email: this.email,
+          status: this.status,
+          latitude: this.latitude,
+          longitude: this.longitude,
+          authUid: user.uid,
+          createdAt: new Date(),
+          verificationStatus: "unverified"
+        };
+
+        const stationsRef = collection(this.firestore, 'fireStations');
+        await addDoc(stationsRef, stationData);
+        alert("Station created! Verification email sent.");
+      }
+
+      this.closeModal();
+
+    } catch (error: any) {
+      console.error(error);
+      alert(error.message);
+    }
   }
-}
 
+  async deleteStation(station: any) {
+    const confirmDelete = confirm(`Are you sure you want to delete "${station.stationName}"?`);
+    if (!confirmDelete) return;
+
+    try {
+      const stationRef = doc(this.firestore, `fireStations/${station.id}`);
+      await deleteDoc(stationRef);
+      alert("Station deleted successfully!");
+    } catch (error: any) {
+      console.error(error);
+      alert(error.message);
+    }
+  }
+
+  async toggleStatus(station: any) {
+    const newStatus = station.status === 'Active' ? 'Inactive' : 'Active';
+    const confirmToggle = confirm(`Are you sure you want to ${newStatus === 'Inactive' ? 'disable' : 'enable'} "${station.stationName}"?`);
+    if (!confirmToggle) return;
+
+    try {
+      const stationRef = doc(this.firestore, `fireStations/${station.id}`);
+      await updateDoc(stationRef, { status: newStatus });
+      alert(`Station status updated to "${newStatus}"`);
+    } catch (error: any) {
+      console.error(error);
+      alert(error.message);
+    }
+  }
 
   resetForm() {
     this.stationName = '';
@@ -251,6 +268,7 @@ async saveStation() {
     this.status = 'Active';
     this.latitude = 7.4470491296265005;
     this.longitude = 125.80912716469686;
+    this.isEditMode = false;
+    this.editStationId = null;
   }
 }
-

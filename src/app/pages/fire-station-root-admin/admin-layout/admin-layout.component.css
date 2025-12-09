@@ -38,7 +38,6 @@
 }
 
 
-/* Navigation */
 .nav-list {
   list-style: none;
   padding: 0;
@@ -48,6 +47,8 @@
 .nav-list li {
   margin: 8px 0;
 }
+
+
 
 .nav-list a {
   display: flex;
@@ -72,6 +73,8 @@
   color: #222;
   font-weight: bold;
 }
+
+
 
 /* Logout button */
 .logout-btn {

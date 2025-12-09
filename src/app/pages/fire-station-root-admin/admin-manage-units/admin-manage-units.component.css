@@ -1,0 +1,255 @@
+/* admin-manage-units.component.css */
+
+/* =========================================================
+   PAGE LAYOUT
+   ========================================================= */
+.page-container {
+  padding: 20px;
+  background: #f7f7f7;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+/* =========================================================
+   HEADER BAR
+   ========================================================= */
+.header-card {
+  background: #635BFF;
+  padding: 15px 25px;
+  border-radius: 10px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.add-btn {
+  background: white;
+  color: #635BFF;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.add-btn:hover { background: #eae8ff; }
+
+/* =========================================================
+   TABLE CARD
+   ========================================================= */
+.table-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding-bottom: 10px;
+}
+
+.table-title {
+  padding: 12px 20px;
+  font-weight: 600;
+  border-bottom: 1px solid #ececec;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead tr:first-child {
+  background: #fafafa;
+  font-weight: 600;
+}
+
+th, td {
+  padding: 10px 20px;
+  text-align: left;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+/* =========================================================
+   INPUTS / SELECTS
+   ========================================================= */
+input, select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: white;
+  font-size: 14px;
+}
+
+input:focus, select:focus {
+  border-color: #635BFF;
+  box-shadow: 0 0 3px #635BFF;
+  outline: none;
+}
+
+/* =========================================================
+   TABLE ACTIONS & BADGES
+   ========================================================= */
+.icon-btn {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  margin-right: 6px;
+}
+
+.icon-btn.danger {
+  border-color: #f56565;
+  color: #c53030;
+}
+
+.badge-active {
+  background: #e6fffa;
+  color: #065f46;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.badge-inactive {
+  background: #fff5f5;
+  color: #742a2a;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.empty {
+  padding: 20px;
+  text-align: center;
+  color: #6b7280;
+}
+
+/* =========================================================
+   MODAL BACKDROP & BOX
+   ========================================================= */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-box {
+  background-color: #fff;
+  padding: 25px;
+  width: 500px;
+  max-width: 95%;
+  border-radius: 10px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-box.small { width: 420px; }
+
+.modal-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* =========================================================
+   FORM GROUPS
+   ========================================================= */
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+/* =========================================================
+   MODAL FOOTER
+   ========================================================= */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.cancel-btn, .save-btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.cancel-btn { background-color: #ccc; }
+.cancel-btn:hover { background-color: #b3b3b3; }
+
+.save-btn { background-color: #28a745; color: white; }
+.save-btn:hover { background-color: #218838; }
+
+.save-btn.danger { background-color: #c53030; }
+
+/* =========================================================
+   LOADING OVERLAY & SPINNER
+   ========================================================= */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  flex-direction: column;
+}
+
+.spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.spinner-logo { width: 80px; height: 80px; }
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  margin-top: -90px;
+  border: 6px solid #ccc;
+  border-top: 6px solid #635BFF;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 700px) {
+  .modal-box { width: 95%; padding: 18px; }
+  th, td { padding: 10px 12px; }
+}

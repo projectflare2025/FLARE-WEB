@@ -1,0 +1,81 @@
+<div class="page-container">
+
+  <div class="header-card">
+    <h2>Public Users Management</h2>
+  </div>
+
+  <div class="table-card">
+    <div class="table-title">Users List</div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Contact</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Active</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let user of userList; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.contact }}</td>
+          <td>{{ user.role }}</td>
+          <td>{{ user.status }}</td>
+         <td>
+          <input type="checkbox" [(ngModel)]="user.isActive" (change)="toggleActive(user)">
+        </td>
+
+          <td>
+            <button class="action-btn" (click)="openEditModal(user)">Edit</button>
+            <button class="delete-btn" (click)="deleteUser(user)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- EDIT USER MODAL -->
+<div class="modal-backdrop" *ngIf="showEditModal">
+  <div class="modal-box">
+    <div class="modal-title">Edit User</div>
+
+    <div class="form-container">
+      <label>Name</label>
+      <input [(ngModel)]="editName" type="text">
+
+      <label>Email</label>
+      <input [(ngModel)]="editEmail" type="email">
+
+      <label>Contact</label>
+      <input [(ngModel)]="editContact" type="text">
+
+      <label>Role</label>
+      <input [(ngModel)]="editRole" type="text">
+
+      <label>Status</label>
+      <input [(ngModel)]="editStatus" type="text">
+
+      <label>Active</label>
+      <input type="checkbox" [(ngModel)]="editIsActive">
+    </div>
+
+    <div class="modal-footer">
+      <button class="cancel-btn" (click)="closeEditModal()">Cancel</button>
+      <button class="save-btn" (click)="saveUser()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner"></div>
+</div>

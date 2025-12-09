@@ -4,6 +4,7 @@ import { FirestoreService, FireStationData, DriverData } from '../../../services
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ref, push } from '@angular/fire/database';
+import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
 import * as L from 'leaflet';
 
   // ------------------------------------------
@@ -118,6 +119,7 @@ export class IncidentReportsComponent implements OnInit, OnDestroy {
   constructor(
     private rtdb: RealtimeDbService,
     private cdr: ChangeDetectorRef,
+    private auth: Auth,
     private firestoreService: FirestoreService   // <-- add this
   ) {}
 

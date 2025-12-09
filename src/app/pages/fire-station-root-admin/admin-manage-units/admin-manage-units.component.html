@@ -1,0 +1,138 @@
+<!-- admin-manage-units.component.html -->
+<div class="page-container">
+
+  <!-- HEADER -->
+  <div class="header-card">
+    <h2>Unit Account Management</h2>
+    <button class="add-btn" (click)="openAddModal()">Add Unit</button>
+  </div>
+
+  <!-- UNIT LIST TABLE -->
+  <div class="table-card">
+    <div class="table-title">Unit List</div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Unit Name</th>
+          <th>Station</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let u of unitList; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ u.unitName }}</td>
+          <td>{{ u.stationName }}</td>
+          <td>{{ u.email }}</td>
+          <td>
+            <span [class.badge-active]="u.status === 'Active'"
+                  [class.badge-inactive]="u.status !== 'Active'">
+              {{ u.status }}
+            </span>
+          </td>
+          <td>
+            <button class="icon-btn" (click)="openEditModal(u)">Edit</button>
+            <button class="icon-btn danger" (click)="confirmDelete(u)">Delete</button>
+            <button class="icon-btn" (click)="toggleStatus(u)">
+              {{ u.status === 'Active' ? 'Disable' : 'Enable' }}
+            </button>
+          </td>
+        </tr>
+
+        <tr *ngIf="unitList.length === 0">
+          <td colspan="6" class="empty">No units yet.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- ADD / EDIT MODAL (Same UI for both) -->
+<div class="modal-backdrop" *ngIf="showModal">
+  <div class="modal-box">
+
+    <div class="modal-title">{{ isEditMode ? 'Edit Unit' : 'Add Unit' }}</div>
+
+    <div class="modal-content">
+      <div class="form-container">
+
+        <div class="form-group">
+          <label>Unit Name *</label>
+          <input [(ngModel)]="unitName" type="text" placeholder="Enter unit name">
+        </div>
+
+        <div class="form-group">
+          <label>Email *</label>
+          <input [(ngModel)]="unitEmail" type="email" placeholder="Enter email address">
+        </div>
+
+        <div class="form-group">
+          <label>Assign Fire Station *</label>
+          <select [(ngModel)]="selectedStationId" (change)="setStationName()">
+            <option value="">Select Station</option>
+            <option *ngFor="let s of stationList" [value]="s.id">
+              {{ s.stationName }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Status</label>
+          <select [(ngModel)]="status">
+            <option>Active</option>
+            <option>Inactive</option>
+          </select>
+        </div>
+
+        <!-- Passwords are only required when adding -->
+        <div *ngIf="!isEditMode" class="form-group">
+          <label>Password *</label>
+          <input [(ngModel)]="unitPassword" type="password" placeholder="Enter Password">
+        </div>
+
+        <div *ngIf="!isEditMode" class="form-group">
+          <label>Confirm Password *</label>
+          <input [(ngModel)]="unitConfirmPassword" type="password" placeholder="Confirm Password">
+        </div>
+
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="cancel-btn" (click)="closeModal()">Cancel</button>
+      <button class="save-btn" (click)="isEditMode ? updateUnit() : saveUnit()">
+        {{ isEditMode ? 'Update Unit' : 'Save Unit' }}
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- DELETE CONFIRM -->
+<div class="modal-backdrop" *ngIf="showDeleteConfirm">
+  <div class="modal-box small">
+    <div class="modal-title">Confirm Delete</div>
+    <div class="modal-content">
+      Are you sure you want to delete <strong>{{ deleteTarget?.unitName }}</strong>?
+      This will remove the unit document from Firestore but will NOT delete the Firebase Auth account.
+    </div>
+    <div class="modal-footer">
+      <button class="cancel-btn" (click)="cancelDelete()">Cancel</button>
+      <button class="save-btn danger" (click)="deleteUnit()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING SPINNER -->
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-container">
+    <img src="images/ic_logo.png" alt="Logo" class="spinner-logo">
+    <div class="spinner"></div>
+  </div>
+</div>
