@@ -198,7 +198,8 @@ export class AdminManageStationsComponent implements AfterViewInit {
         // ========================
         const userCred = await createUserWithEmailAndPassword(this.auth, this.email, this.password);
         const user = userCred.user;
-        await sendEmailVerification(user, { url: 'https://flare-84e13-default-rtdb.firebaseio.com', handleCodeInApp: false });
+        await sendEmailVerification(user);
+
 
         const stationData: any = {
           stationName: this.stationName,
