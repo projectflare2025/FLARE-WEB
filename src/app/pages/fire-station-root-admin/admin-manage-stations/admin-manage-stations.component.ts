@@ -80,7 +80,7 @@ export class AdminManageStationsComponent implements AfterViewInit {
   loadGoogleMapsScript() {
     const script = document.createElement('script');
     script.src =
-      'https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap';
+      'https://maps.googleapis.com/maps/api/js?key=AIzaSyC7cSxFiTGa54IBy8azRiVaZ2Jwj7L6EHE&callback=initMap';
     script.async = true;
     (window as any).initMap = () => {};
     document.body.appendChild(script);
