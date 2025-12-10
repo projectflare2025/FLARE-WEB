@@ -1,14 +1,15 @@
 import { Component } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { CommonModule, NgClass } from '@angular/common';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterOutlet, RouterLink } from '@angular/router';
+
 import { AuthService } from '../../../services/auth.service';
 import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [CommonModule, NgClass, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, NgClass, RouterOutlet, RouterLink],
   templateUrl: './admin-layout.component.html',
   styleUrls: ['./admin-layout.component.css'],
 })
