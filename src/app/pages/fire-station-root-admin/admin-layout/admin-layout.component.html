@@ -12,8 +12,6 @@
     <!-- Navigation -->
     <nav>
 
-
-
         <ul class="nav-list">
   <!-- Dashboard -->
   <li>
@@ -59,6 +57,13 @@
     </ul>
   </li>
 
+   <!-- Manage Fire Stations -->
+  <li>
+    <a routerLink="/admin-app/admin-manage-deployment"
+       [ngClass]="{'active': activeParent === 'deployment'}">
+      <i class="fa fa-cog"></i> Manage Deployment
+    </a>
+  </li>
   <!-- Settings -->
   <li>
     <a routerLink="/admin-app/admin-settings"
@@ -74,8 +79,6 @@
     </a>
   </li>
 </ul>
-
-
 
     </nav>
   </aside>

@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
 import { RealtimeDbService } from '../../../services/realtime-db';
-import { FirestoreService, FireStationData, DriverData } from '../../../services/firestore.service';
+import { FirestoreService, FireStationData, UnitData } from '../../../services/firestore.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ref, push } from '@angular/fire/database';
+import { ref, push, update, get } from '@angular/fire/database';
 import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
 import * as L from 'leaflet';
 
@@ -82,6 +82,9 @@ export class IncidentReportsComponent implements OnInit, OnDestroy {
 
   allReports: any[] = [];  // Store all reports from all categories
   selectedReportType: string = 'All Reports';  // Default dropdown selection
+
+  assignedUnitIds: string[] = [];
+
 
 
   /* ---------------------------
@@ -560,68 +563,343 @@ openFeedbackModal(report: any) {
     this.selectedReportDetails = null;
   }
 
-  /* ---------------------------
+
+
+    /* ---------------------------
        Accept Modal Properties
---------------------------- */
-showAcceptModal = false;
-allStations: FireStationData[] = [];  // includes main station + sub stations
-currentStation: FireStationData | null = null;
+  --------------------------- */
+  showAcceptModal = false;
+  allStations: FireStationData[] = [];  // includes main station + sub stations
+  unitStationMap: { [unitId: string]: { stationId: string; stationName: string } } = {};
 
-/* ---------------------------
+  currentStation: FireStationData | null = null;
+
+  // IncidentReportsComponent.ts
+  selectedStation: FireStationData | null = null;
+  stationUnits: UnitData[] = [];
+  selectedUnits: UnitData[] = [];   // ✅ units you checked
+
+
+
+  showDispatchSummaryModal = false;
+  dispatchSummary: { stationName: string; units: UnitData[] }[] = [];
+
+  /* ---------------------------
        Accept Modal Functions
---------------------------- */
-async openAcceptModal() {
-  this.allStations = []; // clear previous data
-  await this.loadStations();  // populate main + sub stations
-  this.showAcceptModal = true; // now show the modal
-}
-
-
-closeAcceptModal() {
-  this.showAcceptModal = false;
-}
-
-async loadStations() {
-  const stationDocId = sessionStorage.getItem('stationDocId');
-  if (!stationDocId) return;
-
-  // Get main station
-  const mainStation = await this.firestoreService.getFireStationByEmail(sessionStorage.getItem('email') || '');
-  if (mainStation) {
-    this.currentStation = mainStation;
-    this.allStations.push(mainStation);
-
-    console.log('🔥 Main Station:', {
-      name: mainStation['stationName'] ?? 'N/A',
-      id: mainStation['id'] ?? 'N/A'
-    });
+  --------------------------- */
+  async openAcceptModal() {
+  if (!this.selectedReportDetails) {
+    console.warn('No report for accept/backup.');
+    return;
   }
 
-  // Get sub stations
-  const subStations = await this.firestoreService.getSubStationsByParent(stationDocId);
-  this.allStations.push(...subStations);
+  this.allStations = [];
+  this.selectedStation = null;
+  this.stationUnits = [];
+  this.assignedUnitIds = [];
+  this.unitStationMap = {};            // reset map
+  // ⚠️ do NOT reset selectedUnits here – we want to keep previous selections
+  // this.selectedUnits = [];
 
-  console.log('🔥 Substations:', subStations.map(s => ({
-    name: s['stationName'] ?? 'N/A',
-    id: s['id'] ?? 'N/A'
-  })));
+  await this.loadAssignedUnitsForReport();
+  await this.loadStations();
+
+  this.showAcceptModal = true;
 }
 
 
-// IncidentReportsComponent.ts
-selectedStation: FireStationData | null = null;
-stationDrivers: DriverData[] = [];
+private async loadAssignedUnitsForReport() {
+  const report = this.selectedReportDetails;
+  if (!report) return;
+
+  const typeCategory = report.typeCategory || 'FireReport';
+  const reportId = report.id;
+
+  const unitRootRef = ref(this.rtdb.db, `unitReports/${typeCategory}`);
+
+  try {
+    const snapshot = await get(unitRootRef);
+    this.assignedUnitIds = [];
+
+    if (snapshot.exists()) {
+      snapshot.forEach(child => {
+        const val = child.val();
+        if (val.reportId === reportId && val.unitId) {
+          this.assignedUnitIds.push(val.unitId);
+        }
+      });
+    }
+
+    console.log('Already assigned unit IDs:', this.assignedUnitIds);
+  } catch (err) {
+    console.error('Failed to load assigned units for report', err);
+  }
+}
+
+
+
+  closeAcceptModal() {
+    this.showAcceptModal = false;
+  }
+
+  async loadStations() {
+    const stationDocId = sessionStorage.getItem('stationDocId');
+    if (!stationDocId) return;
+
+    // Get main station
+    const mainStation = await this.firestoreService.getFireStationByEmail(
+      sessionStorage.getItem('email') || ''
+    );
+    if (mainStation) {
+      this.currentStation = mainStation;
+      this.allStations.push(mainStation);
+
+      console.log('🔥 Main Station:', {
+        name: mainStation['stationName'] ?? 'N/A',
+        id: mainStation['id'] ?? 'N/A'
+      });
+    }
+
+    // Get sub stations
+    const subStations = await this.firestoreService.getSubStationsByParent(stationDocId);
+    this.allStations.push(...subStations);
+
+    console.log('🔥 Substations:', subStations.map(s => ({
+      name: s['stationName'] ?? 'N/A',
+      id: s['id'] ?? 'N/A'
+    })));
+  }
+
+  isUnitSelected(unit: UnitData): boolean {
+    return this.selectedUnits.some(u => u.id === unit.id);
+  }
+
+  onUnitCheckboxChange(unit: UnitData, event: Event) {
+  if (this.isUnitLocked(unit)) {
+    // just in case, but checkbox is disabled anyway
+    return;
+  }
+
+  const checked = (event.target as HTMLInputElement).checked;
+
+  if (checked) {
+    if (!this.isUnitSelected(unit)) {
+      this.selectedUnits.push(unit);
+    }
+  } else {
+    this.selectedUnits = this.selectedUnits.filter(u => u.id !== unit.id);
+  }
+
+  console.log('Selected units:', this.selectedUnits);
+}
 
 
 async selectStation(station: FireStationData) {
   this.selectedStation = station;
   if (!station?.id) return;
 
-  // Fetch drivers for this station
-  this.stationDrivers = await this.firestoreService.getDriversByStation(station.id);
+  const allUnits = await this.firestoreService.getUnitsByStation(station.id);
+  this.stationUnits = allUnits || [];
 
-  console.log('Drivers for', station.stationName, ':', this.stationDrivers);
+  // Map unit -> station (for later summary)
+  (this.stationUnits || []).forEach(u => {
+    if (u.id) {
+      this.unitStationMap[u.id] = {
+        stationId: station.id!, // assume id is there
+        stationName: station.stationName || 'Unknown Station'  // 👈 FIX HERE
+      };
+    }
+  });
+
+  console.log('Units for', station.stationName, ':', this.stationUnits);
 }
+
+
+isUnitLocked(unit: UnitData): boolean {
+  return this.assignedUnitIds.includes(unit.id);
+}
+
+isUnitChecked(unit: UnitData): boolean {
+  // locked (already in RTDB) OR selected in this session
+  if (this.isUnitLocked(unit)) return true;
+  return this.selectedUnits.some(u => u.id === unit.id);
+}
+
+
+async dispatchToDatabase() {
+  if (!this.selectedReportDetails) {
+    console.warn('No report selected.');
+    return;
+  }
+
+  if (!this.selectedUnits || this.selectedUnits.length === 0) {
+    console.warn('No units selected.');
+    return;
+  }
+
+  const stationId = sessionStorage.getItem('stationDocId');
+  if (!stationId) {
+    console.warn('No stationDocId found in sessionStorage.');
+    return;
+  }
+
+  try {
+    const reportId = this.selectedReportDetails.id;
+    const typeCategory =
+      this.selectedReportDetails.typeCategory || 'FireReport';
+    const now = Date.now();
+
+    const unitRootRef = ref(this.rtdb.db, `unitReports/${typeCategory}`);
+
+    // 🔹 1) UNIT REPORTS
+    for (const unit of this.selectedUnits) {
+      // skip units that already have this report
+      if (this.assignedUnitIds.includes(unit.id)) {
+        console.log(
+          `Unit ${unit.id} already assigned to report ${reportId}, skipping`
+        );
+        continue;
+      }
+
+      const dataForMap = this.unitStationMap[unit.id];
+      const unitStationId = dataForMap?.stationId || stationId;
+      const unitStationName = dataForMap?.stationName || null;
+
+      const unitData = {
+        reportId,
+        stationId: unitStationId,
+        unitId: unit.id,
+        unitName: unit.unitName || unit.name || null,
+        unitStationName,
+        reportType: typeCategory,
+        status: 'Ongoing',
+        acceptedAt: now
+      };
+
+      await push(unitRootRef, unitData);
+
+      // mark as assigned so next confirm won't reassign
+      this.assignedUnitIds.push(unit.id);
+    }
+
+    console.log('✅ RTDB unitReports created/updated successfully');
+
+    // 🔹 2) INVESTIGATOR REPORTS (same as before)
+    const investigators = await this.firestoreService.getInvestigatorsByStation(
+      stationId
+    );
+
+    if (investigators.length > 0) {
+      const invRootRef = ref(
+        this.rtdb.db,
+        `investigatorReports/${typeCategory}`
+      );
+
+      for (const inv of investigators) {
+        const invData = {
+          reportId,
+          stationId,
+          investigatorId: inv.authUid || inv.id,
+          reportType: typeCategory,
+          status: 'Ongoing',
+          acceptedAt: now
+        };
+
+        await push(invRootRef, invData);
+      }
+
+      console.log('✅ RTDB investigatorReports created successfully');
+    } else {
+      console.warn('No investigators found for station', stationId);
+    }
+
+    // 🔹 3) Update the RTDB report itself
+    await update(
+      ref(this.rtdb.db, `AllReport/${typeCategory}/${reportId}`),
+      {
+        status: 'Ongoing',
+        acceptedAt: now
+      }
+    );
+
+     // 🔹 4) Update local UI state immediately (for real-time UI change)
+  this.selectedReportDetails = {
+    ...this.selectedReportDetails,
+    status: 'Ongoing'
+  };
+
+  // Also update the report in the list (allReports + filtered reports)
+  const idx = this.allReports.findIndex(r => r.id === reportId);
+  if (idx !== -1) {
+    this.allReports[idx] = {
+      ...this.allReports[idx],
+      status: 'Ongoing'
+    };
+    this.filterReports(); // refresh this.reports
+  }
+
+  } catch (err) {
+    console.error('Failed to create RTDB dispatches', err);
+  }
+}
+
+async confirmDispatch() {
+  // Optional confirmation dialog
+  const ok = confirm('Are you sure you want to dispatch the selected unit(s)?');
+  if (!ok) return;
+
+  try {
+    await this.dispatchToDatabase();
+
+    // close both modals after successful dispatch
+    this.showDispatchSummaryModal = false;
+    this.showAcceptModal = false;
+  } catch (err) {
+    console.error('Dispatch failed', err);
+  }
+}
+
+
+private buildDispatchSummary() {
+  const summaryMap: { [stationName: string]: UnitData[] } = {};
+
+  for (const unit of this.selectedUnits) {
+    const info = this.unitStationMap[unit.id];
+    const stationName = info?.stationName || 'Station';
+
+    if (!summaryMap[stationName]) {
+      summaryMap[stationName] = [];
+    }
+    summaryMap[stationName].push(unit);
+  }
+
+  this.dispatchSummary = Object.keys(summaryMap).map(stationName => ({
+    stationName,
+    units: summaryMap[stationName]
+  }));
+}
+
+closeDispatchSummaryModal() {
+  this.showDispatchSummaryModal = false;
+}
+
+
+openDispatchSummary() {
+  if (!this.selectedReportDetails) {
+    console.warn('No report selected.');
+    return;
+  }
+
+  if (!this.selectedUnits || this.selectedUnits.length === 0) {
+    console.warn('No units selected.');
+    return;
+  }
+
+  // build summary from currently selected units
+  this.buildDispatchSummary();
+  this.showDispatchSummaryModal = true;
+}
+
 
 
 }

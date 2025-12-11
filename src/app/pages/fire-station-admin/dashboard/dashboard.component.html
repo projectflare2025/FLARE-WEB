@@ -1,20 +1,85 @@
-<div class="dashboard-container">
-  <h2>Dashboard Overview</h2>
+  <div class="dashboard-shell">
+    <header class="dash-header">
+      <div>
+        <p class="eyebrow">Fire Station Admin</p>
+        <h1>Operations Dashboard</h1>
+        <p class="subtext">Live situational awareness for your station</p>
+      </div>
+      <div class="header-chip">
+        <span class="dot live pulse"></span>
+        <span class="chip-sweep"></span>
+        Live data
+      </div>
+    </header>
 
-  <div class="cards">
-    <div class="card">
-      <h3>Total Users</h3>
-      <p>120</p>
-    </div>
+    <section class="glass-panel">
+      <div class="panel-title">
+        <h3>Overview</h3>
+        <span class="meta">Updated {{ lastUpdated | date: 'shortTime' }}</span>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-tile accent-red">
+          <div class="label">Fire Reports</div>
+          <div class="value">{{ totalFireReports }}</div>
+          <div class="hint">Total reported</div>
+        </div>
+        <div class="stat-tile accent-amber">
+          <div class="label">Other Emergencies</div>
+          <div class="value">{{ totalOtherReports }}</div>
+          <div class="hint">Community incidents</div>
+        </div>
+        <div class="stat-tile accent-cyan">
+          <div class="label">Medical Services</div>
+          <div class="value">{{ totalMedicalReports }}</div>
+          <div class="hint">EMS responses</div>
+        </div>
+        <div class="stat-tile accent-indigo">
+          <div class="label">Ongoing Reports</div>
+          <div class="value">{{ totalOngoingReports }}</div>
+          <div class="hint">Active operations</div>
+        </div>
+        <div class="stat-tile accent-purple">
+          <div class="label">Unread Reports</div>
+          <div class="value">{{ totalPendingReports }}</div>
+          <div class="hint">Need review</div>
+        </div>
+        <div class="stat-tile accent-green">
+          <div class="label">All Reports</div>
+          <div class="value">{{ totalAllReports }}</div>
+          <div class="hint">Total records</div>
+        </div>
+      </div>
+    </section>
 
-    <div class="card">
-      <h3>Active Stations</h3>
-      <p>12</p>
-    </div>
+    <section class="grid-2">
+      <div class="glass-panel">
+        <div class="panel-title">
+          <h3>Monthly Reports Trend</h3>
+          <span class="meta">Last 12 months</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas #monthlyChart></canvas>
+        </div>
+      </div>
 
-    <div class="card">
-      <h3>Pending Alerts</h3>
-      <p>4</p>
-    </div>
+      <div class="glass-panel">
+        <div class="panel-title">
+          <h3>Yearly Reports Overview</h3>
+          <span class="meta">Last 5 years</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas #yearlyChart></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section class="glass-panel">
+      <div class="panel-title">
+        <h3>Report Categories Distribution</h3>
+        <span class="meta">Fire vs Other vs Medical</span>
+      </div>
+      <div class="chart-wrap tall">
+        <canvas #categoryChart></canvas>
+      </div>
+    </section>
   </div>
-</div>

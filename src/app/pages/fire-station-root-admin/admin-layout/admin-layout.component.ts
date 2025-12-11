@@ -55,6 +55,10 @@ export class AdminLayoutComponent {
           this.activeParent = 'settings';
           this.activeChild = '';
           this.showAppUsersSubmenu = false;
+        } else if (url.startsWith('/admin-app/admin-manage-deployment')){
+          this.activeParent = 'deployment';
+          this.activeChild = '';
+          this.showAppUsersSubmenu = false;
         } else {
           // fallback: keep Dashboard active by default
           this.activeParent = 'dashboard';

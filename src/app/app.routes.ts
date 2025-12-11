@@ -14,6 +14,7 @@ import { AdminSettingsComponent } from './pages/fire-station-root-admin/admin-se
 import { AdminManageUnitsComponent } from './pages/fire-station-root-admin/admin-manage-units/admin-manage-units.component';
 import { AdminManageRespondersComponent } from './pages/fire-station-root-admin/admin-manage-responders/admin-manage-responders.component';
 import { AdminManagePublicUsersComponent } from './pages/fire-station-root-admin/admin-manage-public-users/admin-manage-public-users.component';
+import { AdminManageDeploymentComponent } from './pages/fire-station-root-admin/admin-manage-deployment/admin-manage-deployment.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -42,6 +43,7 @@ export const routes: Routes = [
       { path: 'admin-manage-units', component: AdminManageUnitsComponent },
       { path: 'admin-manage-responders', component: AdminManageRespondersComponent },
       { path: 'admin-manage-public-users', component: AdminManagePublicUsersComponent },
+      { path: 'admin-manage-deployment', component: AdminManageDeploymentComponent},
       { path: 'admin-settings', component: AdminSettingsComponent },                 // 👈 ADDED
       { path: '', redirectTo: 'admin-dashboard', pathMatch: 'full' }
     ]

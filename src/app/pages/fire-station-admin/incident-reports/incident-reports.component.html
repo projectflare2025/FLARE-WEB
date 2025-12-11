@@ -60,7 +60,7 @@
           <td colspan="6" class="no-data">Loading reports...</td>
         </tr>
 
-        <tr *ngIf="!loading && reports.length === 0">
+        <tr *ngIf="!loading && reports?.length === 0">
           <td colspan="6" class="no-data">No reports found.</td>
         </tr>
 
@@ -225,11 +225,28 @@
            alt="Report Photo" class="report-photo"/>
       <div *ngIf="!selectedReportDetails.photoBase64" class="no-photo-text">No photo of report</div>
 
-      <div class="photo-buttons">
-        <button class="footer-btn accept-btn-footer" (click)="openAcceptModal()">ACCEPT</button>
-        <button class="footer-btn backup-btn-footer">REQUEST BACKUP</button>
+          <div class="photo-buttons">
+        <!-- Show ACCEPT only if status is NOT Ongoing -->
+        <button
+          class="footer-btn accept-btn-footer"
+          *ngIf="selectedReportDetails.status !== 'Ongoing'"
+          (click)="openAcceptModal()"
+        >
+          ACCEPT
+        </button>
+
+        <!-- Show REQUEST BACKUP only if status IS Ongoing -->
+        <button
+          class="footer-btn backup-btn-footer"
+          *ngIf="selectedReportDetails.status === 'Ongoing'"
+          (click)="openAcceptModal()"
+        >
+          REQUEST BACKUP
+        </button>
+
         <button class="footer-btn close-btn-footer" (click)="closeReportModal()">CLOSE</button>
       </div>
+
     </div>
   </div>
 </div>
@@ -337,33 +354,143 @@
 <div class="modal-backdrop" *ngIf="showAcceptModal" (click)="closeAcceptModal()"></div>
 
 <div class="accept-modal" *ngIf="showAcceptModal" (click)="$event.stopPropagation()">
-  <div class="modal-header">
-    <h3>Select Fire Station</h3>
-    <button class="close-btn" (click)="closeAcceptModal()">×</button>
-  </div>
+  <!-- Header -->
+  <header class="modal-header">
+    <div class="modal-title-block">
+      <h3>Assign Dispatch</h3>
+      <p>Select a fire station and units to respond.</p>
+    </div>
+    <button class="icon-btn close-btn" (click)="closeAcceptModal()">×</button>
+  </header>
 
- <div class="modal-content">
-  <ul class="station-list">
-    <li *ngFor="let station of allStations"
-        (click)="selectStation(station)"
-        [class.selected]="station.id === selectedStation?.id">
-      {{ station.stationName }}
-    </li>
-  </ul>
+  <!-- Body -->
+  <section class="modal-body">
+    <!-- Stations column -->
+    <div class="panel stations-panel">
+      <div class="panel-header">
+        <span class="panel-title">Fire Stations</span>
+        <span class="panel-subtitle">{{ allStations?.length || 0 }} available</span>
+      </div>
 
-  <div *ngIf="stationDrivers.length > 0" class="drivers-list">
-    <h4>Drivers</h4>
-    <ul>
-      <li *ngFor="let driver of stationDrivers">
-        {{ driver.name }}
-      </li>
-    </ul>
-  </div>
+      <ul class="station-list">
+        <li
+          *ngFor="let station of allStations"
+          (click)="selectStation(station)"
+          [class.selected]="station.id === selectedStation?.id"
+        >
+          <div class="station-name">{{ station.stationName }}</div>
+          <div class="station-meta">
+            <!-- adjust to your data if you have counts/status, else remove -->
+            <span>Tap to view units</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Units column -->
+    <div class="panel units-panel">
+      <div class="panel-header">
+        <span class="panel-title">
+          <ng-container *ngIf="selectedStation">
+           {{ selectedStation.stationName }}
+          </ng-container>
+        </span>
+        <span class="panel-subtitle" *ngIf="stationUnits?.length">
+          {{ stationUnits.length }} unit(s)
+        </span>
+      </div>
+
+      <!-- Empty state before selecting station -->
+      <div class="empty-state" *ngIf="!selectedStation">
+        <p>Select a station to see its units.</p>
+      </div>
+
+      <!-- No units available -->
+      <div class="empty-state" *ngIf="selectedStation && stationUnits.length === 0">
+        <p>No units available for this station.</p>
+      </div>
+
+      <!-- Units list -->
+      <ol class="unit-list" *ngIf="stationUnits.length > 0">
+        <li *ngFor="let unit of stationUnits">
+          <label class="unit-item">
+            <input
+            type="checkbox"
+            [checked]="isUnitChecked(unit)"
+            [disabled]="isUnitLocked(unit)"
+            (change)="onUnitCheckboxChange(unit, $event)"
+          />
+
+            <span class="unit-name">
+              {{ unit.unitName || unit.name || 'Unnamed unit' }}
+            </span>
+          </label>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="modal-footer">
+    <div class="selection-summary">
+      <span *ngIf="selectedUnits.length > 0">
+        {{ selectedUnits.length }} unit(s) selected
+      </span>
+      <span *ngIf="selectedUnits.length === 0">
+        No units selected
+      </span>
+    </div>
+
+    <div class="footer-actions">
+      <button class="footer-btn secondary-btn" (click)="closeAcceptModal()">
+        Cancel
+      </button>
+
+     <button
+      class="footer-btn primary-btn"
+      [disabled]="selectedUnits.length === 0"
+      (click)="openDispatchSummary()"
+    >
+      Confirm Assign
+    </button>
+
+    </div>
+  </footer>
 </div>
 
+<!-- =========================
+     DISPATCH SUMMARY MODAL
+========================= -->
+<div class="modal-backdrop" *ngIf="showDispatchSummaryModal" (click)="closeDispatchSummaryModal()"></div>
+
+<div class="summary-modal" *ngIf="showDispatchSummaryModal" (click)="$event.stopPropagation()">
+  <div class="modal-header">
+    <h3>Dispatch Summary</h3>
+    <button class="close-btn" (click)="closeDispatchSummaryModal()">×</button>
+  </div>
+
+  <div class="modal-content">
+    <div *ngFor="let group of dispatchSummary" class="station-group">
+      <h4>{{ group.stationName }}</h4>
+      <ul>
+        <li *ngFor="let unit of group.units">
+          {{ unit.unitName || unit.name || 'Unnamed unit' }}
+        </li>
+      </ul>
+    </div>
+  </div>
 
   <div class="modal-footer">
-    <button class="footer-btn close-btn-footer" (click)="closeAcceptModal()">CLOSE</button>
+  <button class="footer-btn secondary-btn" (click)="closeDispatchSummaryModal()">
+    Cancel
+  </button>
+
+  <button class="footer-btn primary-btn" (click)="confirmDispatch()">
+    Dispatch
+  </button>
   </div>
+
 </div>
+
+
 

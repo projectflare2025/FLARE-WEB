@@ -33,13 +33,13 @@
 .settings-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 20px;
+  gap: 22px;
 }
 
 /* CARDS */
 .settings-card {
   background: white;
-  padding: 20px;
+  padding: 24px;
   border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.06);
   border: 1px solid #e5e7eb;
@@ -59,6 +59,7 @@
 /* FORM FIELDS */
 .form-field {
   margin-bottom: 12px;
+  margin-right: 10px;
 }
 
 .form-field label {
@@ -141,7 +142,7 @@ input[type="password"] {
 }
 
 .full-width {
-  width: 100%;
+  width: 105%;
   margin-top: 8px;
 }
 

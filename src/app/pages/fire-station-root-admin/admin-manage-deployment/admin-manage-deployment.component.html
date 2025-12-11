@@ -1,0 +1,497 @@
+<div class="page-container">
+
+  <!-- HEADER -->
+  <div class="header-card">
+    <div class="header-text">
+      <h2>Deployment Event Management</h2>
+      <p>Create deployment events and assign fire stations &amp; units.</p>
+    </div>
+    <button class="btn primary-btn" (click)="openCreateModal()">
+      + Deploy Event
+    </button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="card table-card">
+    <div class="table-header">
+      <div class="table-title">Deployment Events</div>
+      <div class="table-subtitle">{{ deploymentList.length }} deployments total</div>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Location</th>
+            <th>Purpose</th>
+            <th>Specific Order</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let dep of deploymentList; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ dep.location }}</td>
+            <td>{{ dep.purpose }}</td>
+            <td>{{ dep.specificOrder }}</td>
+            <td>{{ dep.date }}</td>
+            <td>{{ dep.time }}</td>
+            <td >
+        <div class="actions">
+
+             <!-- View Locations -->
+                <!-- View / Edit Details -->
+      <button class="icon-btn" (click)="openDetailsModal(dep)">
+        <img src="images/details.png" alt="View Details">
+      </button>
+
+
+          <!-- Assign Units -->
+          <button class="icon-btn" (click)="assignFromRow(dep)">
+            <img src="images/bfpfeedback.png" alt="Assign Units">
+          </button>
+
+          <!-- View Locations -->
+          <button class="icon-btn" (click)="openLocationModal(dep)">
+            <img src="images/location.png" alt="View Locations">
+          </button>
+
+          <!-- Remove -->
+          <button class="icon-btn danger" (click)="removeDeployment(dep)">
+            <img src="images/happiness.png" alt="Remove">
+          </button>
+
+        </div>
+      </td>
+          </tr>
+
+          <tr *ngIf="deploymentList.length === 0">
+            <td colspan="7" class="empty-state">
+              No deployments yet. Click <strong>“Deploy Event”</strong> to create one.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================== -->
+<!--        CREATE DEPLOYMENT MODAL       -->
+<!-- ==================================== -->
+<div class="modal-backdrop" *ngIf="showCreateModal">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">
+          Deploy Event
+        </div>
+        <div class="modal-subtitle">
+          Fill in deployment details and select the exact location on the map.
+        </div>
+      </div>
+      <button class="icon-btn" (click)="closeCreateModal()">✕</button>
+    </div>
+
+    <div class="modal-content">
+
+      <!-- LEFT FORM -->
+      <div class="left-form">
+        <div class="form-group">
+          <label>Exact Location <span class="required">*</span></label>
+          <input [(ngModel)]="location" type="text" placeholder="e.g. Tagum New City Hall">
+        </div>
+
+        <div class="form-group">
+          <label>Purpose <span class="required">*</span></label>
+          <input [(ngModel)]="purpose" type="text" placeholder="e.g. Fire Drill, Standby, Inspection">
+        </div>
+
+        <div class="form-group">
+          <label>Specific Order <span class="required">*</span></label>
+          <input [(ngModel)]="specificOrder" type="text" placeholder="e.g. Proper Uniform, Kaligo daan, Kaon">
+        </div>
+
+        <div class="form-group">
+          <label>Date <span class="required">*</span></label>
+          <input [(ngModel)]="date" type="date">
+        </div>
+
+        <div class="form-group">
+          <label>Time (24-hour) <span class="required">*</span></label>
+          <input [(ngModel)]="time" type="time">
+        </div>
+      </div>
+
+      <!-- RIGHT MAP SECTION -->
+      <div class="map-box">
+        <h3>Select Location on Map</h3>
+        <p class="map-helper-text">Click on the map to set the deployment location.</p>
+        <div id="deployment-map" class="map-container">
+          <div class="map-error" *ngIf="!googleMapsLoaded">
+            <span>⏳</span>
+            <div>Loading Google Map...</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn ghost-btn" (click)="closeCreateModal()">Cancel</button>
+      <button class="btn primary-btn" (click)="saveDeployment()">
+        Save Deployment
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ==================================== -->
+<!--      VIEW / EDIT DEPLOYMENT DETAILS  -->
+<!-- ==================================== -->
+<div class="modal-backdrop" *ngIf="showDetailsModal">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">
+          Edit Deployment Details
+        </div>
+        <div class="modal-subtitle" *ngIf="editingDeploymentId">
+          Edit the details for this deployment event.
+        </div>
+      </div>
+      <button class="icon-btn" (click)="closeDetailsModal()">✕</button>
+    </div>
+
+    <!-- Content -->
+    <div class="modal-content">
+      <div class="left-form">
+        <div class="form-group">
+          <label>Exact Location <span class="required">*</span></label>
+          <input [(ngModel)]="editLocation" type="text">
+        </div>
+
+        <div class="form-group">
+          <label>Purpose <span class="required">*</span></label>
+          <input [(ngModel)]="editPurpose" type="text">
+        </div>
+
+        <div class="form-group">
+          <label>Specific Order <span class="required">*</span></label>
+          <input [(ngModel)]="editSpecificOrder" type="text">
+        </div>
+
+        <div class="form-group">
+          <label>Date <span class="required">*</span></label>
+          <input [(ngModel)]="editDate" type="date">
+        </div>
+
+        <div class="form-group">
+          <label>Time (24-hour) <span class="required">*</span></label>
+          <input [(ngModel)]="editTime" type="time">
+        </div>
+      </div>
+
+      <!-- Right side simple summary (optional) -->
+      <div class="map-box">
+      <h3>Edit Location on Map</h3>
+      <p class="map-helper-text">
+        Drag the marker or click on the map to change the deployment location.
+      </p>
+      <div id="details-map" class="map-container">
+        <div class="map-error" *ngIf="!googleMapsLoaded">
+          <span>⏳</span>
+          <div>Loading Google Map...</div>
+        </div>
+      </div>
+    </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button class="btn ghost-btn" (click)="closeDetailsModal()">Cancel</button>
+      <button class="btn primary-btn" (click)="saveDetails()">
+        Save Changes
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ==================================== -->
+<!--        ASSIGN STATION / UNITS        -->
+<!-- ==================================== -->
+<div class="modal-backdrop" *ngIf="showAssignModal">
+  <div class="assign-modal" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <header class="assign-header">
+      <div class="assign-title-block">
+        <h3>Assign Stations &amp; Units</h3>
+        <p>Select fire stations and units for this deployment.</p>
+      </div>
+      <button class="icon-btn" (click)="closeAssignModal()">✕</button>
+    </header>
+
+    <!-- Body -->
+    <section class="assign-body">
+      <!-- Stations -->
+      <div class="panel stations-panel">
+        <div class="panel-header">
+          <span class="panel-title">Fire Stations</span>
+          <span class="panel-subtitle">{{ allStations.length }} available</span>
+        </div>
+
+        <ul class="station-list">
+          <li
+            *ngFor="let station of allStations"
+            (click)="selectStation(station)"
+            [class.selected]="station.id === selectedStation?.id"
+          >
+            <div class="station-name">{{ station.stationName }}</div>
+            <div class="station-meta">
+              Tap to view units
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Units -->
+      <div class="panel units-panel">
+        <div class="panel-header">
+          <span class="panel-title">
+            {{ selectedStation?.stationName || 'Units' }}
+          </span>
+          <span class="panel-subtitle" *ngIf="stationUnits.length">
+            {{ stationUnits.length }} unit(s)
+          </span>
+        </div>
+
+        <div class="empty-state" *ngIf="!selectedStation">
+          Select a station to see its units.
+        </div>
+
+        <div class="empty-state" *ngIf="selectedStation && stationUnits.length === 0">
+          No units available for this station.
+        </div>
+
+        <ol class="unit-list" *ngIf="stationUnits.length > 0">
+          <li *ngFor="let unit of stationUnits">
+            <label class="unit-item">
+              <input
+                type="checkbox"
+                [checked]="isUnitSelected(unit)"
+                (change)="onUnitCheckboxChange(unit, $event)"
+              />
+              <span class="unit-name">
+                {{ unit.unitName || unit.name || 'Unnamed unit' }}
+              </span>
+            </label>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="assign-footer">
+      <div class="selection-summary">
+        <span *ngIf="selectedUnits.length > 0">
+          {{ selectedUnits.length }} unit(s) selected
+        </span>
+        <span *ngIf="selectedUnits.length === 0">
+          No units selected
+        </span>
+      </div>
+
+      <div class="footer-actions">
+        <button class="footer-btn secondary-btn" (click)="closeAssignModal()">
+          Cancel
+        </button>
+        <button
+          class="footer-btn primary-btn"
+          [disabled]="selectedUnits.length === 0"
+          (click)="confirmAssign()"
+        >
+          Confirm Assign
+        </button>
+      </div>
+    </footer>
+
+  </div>
+</div>
+
+<!-- ==================================== -->
+<!--       VIEW DEPLOYMENT LOCATIONS      -->
+<!-- ==================================== -->
+<div class="modal-backdrop" *ngIf="showLocationModal">
+  <div class="location-modal" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <header class="location-header">
+      <div class="location-title-block">
+        <h3>Deployment Locations</h3>
+        <p *ngIf="selectedDeploymentForLocation">
+          Tracking units for: <strong>{{ selectedDeploymentForLocation.location }}</strong>
+        </p>
+      </div>
+      <button class="icon-btn" (click)="closeLocationModal()">✕</button>
+    </header>
+
+    <!-- Body -->
+    <section class="location-body">
+      <!-- MAP -->
+      <div class="location-map-panel">
+        <div id="deployment-location-map" class="location-map-container">
+          <div class="map-error" *ngIf="!googleMapsLoaded">
+            <span>⏳</span>
+            <div>Loading Google Map...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- UNIT LIST -->
+      <div class="location-units-panel">
+        <div class="panel-header">
+          <span class="panel-title">Assigned Units</span>
+          <span class="panel-subtitle">{{ deploymentUnits.length }} assigned</span>
+        </div>
+
+        <div class="empty-state" *ngIf="deploymentUnits.length === 0">
+          No units found for this deployment yet.
+        </div>
+
+        <ul class="location-unit-list" *ngIf="deploymentUnits.length > 0">
+  <li *ngFor="let du of deploymentUnits; let idx = index">
+    <div class="loc-unit-row">
+      <!-- left side: number + info -->
+      <div class="loc-unit-main">
+        <span class="loc-unit-pill">#{{ idx + 1 }}</span>
+        <div>
+          <div class="loc-unit-id">
+            Station: {{ du.stationName || 'Unknown station' }}
+            <hr>
+            Unit: {{ du.unitName || du.unitId || 'Unknown' }}
+            <hr>
+          </div>
+        </div>
+      </div>
+
+      <!-- right side: MESSAGE text button -->
+      <button
+        class="message-btn"
+        (click)="openMessageModal(du)"
+      >
+        Message
+      </button>
+    </div>
+  </li>
+</ul>
+
+
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- ==================================== -->
+<!--        UNIT MESSAGE / CHAT MODAL     -->
+<!-- ==================================== -->
+<div class="modal-backdrop" *ngIf="showMessageModal">
+  <div class="chat-modal" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <header class="chat-header">
+      <div class="chat-header-left">
+        <div class="chat-avatar">
+          <!-- just a placeholder initial -->
+          <span>
+            {{ activeChatUnit?.unitName?.charAt(0) || 'U' }}
+          </span>
+        </div>
+        <div class="chat-title-block">
+          <div class="chat-name">
+            {{ activeChatUnit?.unitName || activeChatUnit?.unitId || 'Unit' }}
+          </div>
+          <div class="chat-status">
+            Active · just now
+          </div>
+        </div>
+      </div>
+
+      <button class="icon-btn chat-close-btn" (click)="closeMessageModal()">✕</button>
+    </header>
+
+    <!-- Body -->
+    <section class="chat-body">
+      <div class="chat-date-separator">
+        {{ chatDateLabel }}
+      </div>
+
+      <div class="chat-messages">
+        <!-- sample rendering of messages -->
+        <div
+          *ngFor="let msg of chatMessages"
+          [ngClass]="{
+            'chat-message': true,
+            'from-me': msg.from === 'me',
+            'from-them': msg.from === 'unit'
+          }"
+        >
+          <div class="chat-bubble">
+            {{ msg.text }}
+          </div>
+          <div class="chat-time">
+            {{ msg.time }}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer / Input -->
+    <footer class="chat-footer">
+      <div class="chat-footer-left">
+        <button class="chat-tool-btn">
+          🎤
+        </button>
+        <button class="chat-tool-btn">
+          📷
+        </button>
+        <button class="chat-tool-btn">
+          📎
+        </button>
+      </div>
+
+      <div class="chat-input-wrapper">
+        <input
+          type="text"
+          [(ngModel)]="newMessageText"
+          placeholder="Aa"
+          (keyup.enter)="sendMessage()"
+        />
+      </div>
+
+      <div class="chat-footer-right">
+        <button class="chat-tool-btn">
+          😊
+        </button>
+        <button class="chat-send-btn" (click)="sendMessage()">
+          ➤
+        </button>
+      </div>
+    </footer>
+
+  </div>
+</div>
+

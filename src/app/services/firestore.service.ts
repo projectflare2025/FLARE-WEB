@@ -1,12 +1,16 @@
 // src/app/services/firestore.service.ts
 
 import { Injectable } from '@angular/core';
+
 import {
   Firestore,
   collection,
   query,
   where,
-  getDocs
+  getDocs,
+  doc,
+  getDoc,
+  onSnapshot,
 } from '@angular/fire/firestore';
 
 // ---------------------
@@ -20,8 +24,8 @@ export interface AdminData {
 export interface FireStationData {
   id: string;
   email: string;
-  stationName?: string;       // Optional, as some stations may not have it
-  parentStationId?: string;   // Optional for sub-stations
+  stationName?: string;
+  parentStationId?: string;
 }
 
 export interface DriverData {
@@ -29,6 +33,28 @@ export interface DriverData {
   name: string;
   stationId: string;
   role?: string;
+}
+
+// Units with lat/long
+export interface UnitData {
+  id: string;
+  stationId: string;
+  unitName?: string;
+  name?: string;
+  role?: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+export interface ResponderData {
+  id: string;
+  authUid: string;
+  stationId: string;
+  role: string;
+  responderName?: string;
+  email?: string;
+  contact?: string;
+  status?: string;
 }
 
 // ---------------------
@@ -41,11 +67,10 @@ export class FirestoreService {
 
   constructor(private firestore: Firestore) {}
 
-  // Fetch Admin by email
   async getAdminByEmail(email: string): Promise<AdminData | null> {
-    const ref = collection(this.firestore, 'Admin');
-    const q = query(ref, where('email', '==', email));
-    const snap = await getDocs(q);
+    const refCol = collection(this.firestore, 'Admin');
+    const qRef = query(refCol, where('email', '==', email));
+    const snap = await getDocs(qRef);
 
     if (snap.empty) return null;
 
@@ -55,11 +80,10 @@ export class FirestoreService {
     };
   }
 
-  // Fetch FireStation by email
   async getFireStationByEmail(email: string): Promise<FireStationData | null> {
-    const ref = collection(this.firestore, 'fireStations');
-    const q = query(ref, where('email', '==', email));
-    const snap = await getDocs(q);
+    const refCol = collection(this.firestore, 'fireStations');
+    const qRef = query(refCol, where('email', '==', email));
+    const snap = await getDocs(qRef);
 
     if (snap.empty) return null;
 
@@ -69,36 +93,100 @@ export class FirestoreService {
     };
   }
 
-  // Fetch all sub-stations for a parent station
+  // All fireStations
+  async getAllFireStations(): Promise<FireStationData[]> {
+    const refCol = collection(this.firestore, 'fireStations');
+    const snap = await getDocs(refCol);
+
+    if (snap.empty) return [];
+
+    return snap.docs.map(docSnap => ({
+      id: docSnap.id,
+      ...(docSnap.data() as any)
+    }));
+  }
+
   async getSubStationsByParent(parentStationId: string): Promise<FireStationData[]> {
-    const ref = collection(this.firestore, 'fireStations');
-    const q = query(ref, where('parentStationId', '==', parentStationId));
-    const snap = await getDocs(q);
+    const refCol = collection(this.firestore, 'fireStations');
+    const qRef = query(refCol, where('parentStationId', '==', parentStationId));
+    const snap = await getDocs(qRef);
 
     if (snap.empty) return [];
 
-    return snap.docs.map(doc => ({
-      id: doc.id,
-      ...(doc.data() as any)
+    return snap.docs.map(docSnap => ({
+      id: docSnap.id,
+      ...(docSnap.data() as any)
     }));
   }
 
-  // Fetch all drivers for a specific station
-  async getDriversByStation(stationId: string): Promise<DriverData[]> {
-    const driversRef = collection(this.firestore, 'drivers');
-    const q = query(driversRef, where('stationId', '==', stationId));
-    const snap = await getDocs(q);
+  async getInvestigatorsByStation(stationId: string): Promise<ResponderData[]> {
+    const respondersRef = collection(this.firestore, 'responders');
+    const qRef = query(
+      respondersRef,
+      where('stationId', '==', stationId),
+      where('role', '==', 'Investigator')
+    );
+
+    const snap = await getDocs(qRef);
 
     if (snap.empty) return [];
 
-    const drivers = snap.docs.map(doc => ({
-      ...(doc.data() as DriverData),
-      id: doc.id  // Ensure doc.id is assigned
-    }));
+    const investigators = snap.docs.map(docSnap => ({
+      id: docSnap.id,
+      ...(docSnap.data() as any)
+    })) as ResponderData[];
 
-    console.log('Drivers for stationId', stationId, ':', drivers);
-
-    return drivers;
+    console.log('Investigators for stationId', stationId, ':', investigators);
+    return investigators;
   }
 
+  async getUnitsByStation(stationId: string): Promise<UnitData[]> {
+    const unitsRef = collection(this.firestore, 'units');
+    const qRef = query(unitsRef, where('stationId', '==', stationId));
+    const snap = await getDocs(qRef);
+
+    if (snap.empty) return [];
+
+    const units = snap.docs.map(docSnap => ({
+      ...(docSnap.data() as any),
+      id: docSnap.id
+    })) as UnitData[];
+
+    console.log('Units for stationId', stationId, ':', units);
+    return units;
+  }
+
+  // Optional one-shot fetch
+  async getUnitById(unitId: string): Promise<UnitData | null> {
+    const unitRef = doc(this.firestore, 'units', unitId);
+    const snap = await getDoc(unitRef);
+
+    if (!snap.exists()) return null;
+
+    return {
+      id: snap.id,
+      ...(snap.data() as any)
+    } as UnitData;
+  }
+
+  // Optional realtime helper (not required for the map now,
+  // but you can still use it elsewhere)
+  listenToUnitById(
+    unitId: string,
+    callback: (unit: UnitData | null) => void
+  ): () => void {
+    const unitRef = doc(this.firestore, 'units', unitId);
+    const unsub = onSnapshot(unitRef, (snap) => {
+      if (!snap.exists()) {
+        callback(null);
+        return;
+      }
+      callback({
+        id: snap.id,
+        ...(snap.data() as any),
+      } as UnitData);
+    });
+
+    return unsub;
+  }
 }
